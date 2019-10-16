@@ -1,0 +1,12 @@
+github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
+github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/gen2brain/flite-go v0.0.0-20170519100317-f4df2119132c h1:JBlwZJSYopoPXh0dLN9GGw750uhU08VjKKpl+uX5pE4=
+github.com/gen2brain/flite-go v0.0.0-20170519100317-f4df2119132c/go.mod h1:Wv0H30ZpZPf4CrBNqgiG2S4G0CDtZWS2i87JnPtv9LI=
+github.com/joomcode/errorx v1.0.0 h1:RJAKLTy1Sv2Tszhu14m5RZP4VGRlhXutG/XlL1En5VM=
+github.com/joomcode/errorx v1.0.0/go.mod h1:kgco15ekB6cs+4Xjzo7SPeXzx38PbJzBwbnu9qfVNHQ=
+github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2 h1:LPYwXwwHigHHFX3SFa9W9zBIa5reyaLJos2e95eHh68=
+github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2/go.mod h1:Y8IYP9aVODN3Vnw1FCqygCG5IWyYBeBlZqQ5aX+fHFw=
+github.com/xlab/pocketsphinx-go v0.0.0-20190320212311-8abf820ce691 h1:07+LrLmjMqYb0FE/iqNAO+xoTKrgJj4P59RCltHSEO0=
+github.com/xlab/pocketsphinx-go v0.0.0-20190320212311-8abf820ce691/go.mod h1:iXOc3luzn8mSqr1X+H3ZrRG57AoOEXmSk+8XDQxh0xU=
+github.com/xlab/portaudio-go v0.0.0-20170905165025-132d041879db h1:sSIQlvfIWUHLDhEWUL2K2CeYv9CDksC00VxuxPUe4lw=
+github.com/xlab/portaudio-go v0.0.0-20170905165025-132d041879db/go.mod h1:r57mRacDQMS6Fz8ubv1nE8zZ0DbQ/sY0NkCmdxeUXmY=

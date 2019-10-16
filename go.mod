@@ -1,0 +1,12 @@
+module github.com/orsinium/tellowerk
+
+go 1.13
+
+require (
+	github.com/BurntSushi/toml v0.3.1
+	github.com/gen2brain/flite-go v0.0.0-20170519100317-f4df2119132c
+	github.com/joomcode/errorx v1.0.0
+	github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2
+	github.com/xlab/pocketsphinx-go v0.0.0-20190320212311-8abf820ce691
+	github.com/xlab/portaudio-go v0.0.0-20170905165025-132d041879db
+)
