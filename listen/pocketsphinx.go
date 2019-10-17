@@ -2,9 +2,9 @@ package listen
 
 import (
 	"errors"
-	"log"
 	"unsafe"
 
+	"github.com/francoispqt/onelog"
 	"github.com/joomcode/errorx"
 	"github.com/xlab/pocketsphinx-go/sphinx"
 	"github.com/xlab/portaudio-go/portaudio"
@@ -13,6 +13,7 @@ import (
 type PocketSphinx struct {
 	decoder  *sphinx.Decoder
 	stream   *portaudio.Stream
+	logger   *onelog.Logger
 	channels int
 
 	channel    chan string
@@ -65,6 +66,7 @@ func (ps *PocketSphinx) paCallback(input unsafe.Pointer, _ unsafe.Pointer, sampl
 	// ProcessRaw with disabled search because callback needs to be relatime
 	_, ok := ps.decoder.ProcessRaw(in, true, false)
 	if !ok {
+		ps.logger.Error("cannot process raw")
 		return statusAbort
 	}
 
@@ -85,19 +87,19 @@ func (ps *PocketSphinx) paCallback(input unsafe.Pointer, _ unsafe.Pointer, sampl
 			ps.channel <- hyp
 		}
 		if !ps.decoder.StartUtt() {
-			log.Fatal("Sphinx failed to start utterance")
+			ps.logger.Fatal("Sphinx failed to start utterance")
 		}
 	}
 	return statusContinue
 }
 
-func NewPocketSphinx(config ListenConfig) (*PocketSphinx, error) {
+func NewPocketSphinx(config ListenConfig, logger *onelog.Logger) (*PocketSphinx, error) {
 	err := convertError(portaudio.Initialize())
 	if err != nil {
 		return nil, errorx.Decorate(err, "cannot init PortAudio")
 	}
 
-	ps := PocketSphinx{channels: config.Channels}
+	ps := PocketSphinx{channels: config.Channels, logger: logger}
 	cfg := sphinx.NewConfig(
 		sphinx.HMMDirOption(config.HMM),
 		sphinx.DictFileOption(config.Dict),

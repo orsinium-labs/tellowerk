@@ -2,6 +2,8 @@ package listen
 
 import (
 	"errors"
+
+	"github.com/francoispqt/onelog"
 )
 
 type Ear interface {
@@ -17,10 +19,10 @@ type ListenConfig struct {
 	Channels   int
 }
 
-func NewEar(engine string, config ListenConfig) (Ear, error) {
+func NewEar(engine string, config ListenConfig, logger *onelog.Logger) (Ear, error) {
 	switch engine {
 	case "sphinx", "pocketsphinx":
-		ears, err := NewPocketSphinx(config)
+		ears, err := NewPocketSphinx(config, logger)
 		if err != nil {
 			ears.Close()
 			return nil, err

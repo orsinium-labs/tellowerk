@@ -32,7 +32,7 @@ func main() {
 		logger.FatalWith("cannot read config").Err("error", err).Write()
 	}
 
-	ears, err := listen.NewEar(conf.Listen.Engine, conf.Listen.ListenConfig)
+	ears, err := listen.NewEar(conf.Listen.Engine, conf.Listen.ListenConfig, logger)
 	if err != nil {
 		logger.FatalWith("cannot make ear").Err("error", err).Write()
 	}
