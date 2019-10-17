@@ -1,16 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"os"
 
 	"github.com/BurntSushi/toml"
+	"github.com/francoispqt/onelog"
 	"github.com/orsinium/tellowerk/listen"
 	"github.com/orsinium/tellowerk/speak"
 )
 
 type configListen struct {
-	listen.PocketSphinxConfig
+	listen.ListenConfig
 	Engine string
 }
 type configSpeak struct {
@@ -24,19 +24,31 @@ type Config struct {
 }
 
 func main() {
+	logger := onelog.New(os.Stdout, onelog.ALL)
+
 	var conf Config
 	_, err := toml.DecodeFile("config.toml", &conf)
 	if err != nil {
-		log.Fatal(err)
+		logger.FatalWith("cannot read config").Err("error", err).Write()
 	}
-	ears, err := listen.NewEars(conf.Listen.Engine, conf.Listen.PocketSphinxConfig)
+
+	ears, err := listen.NewEar(conf.Listen.Engine, conf.Listen.ListenConfig)
 	if err != nil {
-		log.Fatal(err)
+		logger.FatalWith("cannot make ear").Err("error", err).Write()
 	}
-	voice := speak.NewVoice(conf.Speak.Engine, conf.Speak.Speaker)
+
+	voice, err := speak.NewVoice(conf.Speak.Engine, conf.Speak.Speaker)
+	if err != nil {
+		logger.FatalWith("cannot make voice").Err("error", err).Write()
+	}
+
+	logger.Info("start")
 	for {
 		text := ears.Listen()
-		fmt.Println(text)
-		voice.Say(text)
+		logger.InfoWith("text heared").String("text", text).Write()
+		err = voice.Say(text)
+		if err != nil {
+			logger.ErrorWith("cannot say").Err("error", err).Write()
+		}
 	}
 }

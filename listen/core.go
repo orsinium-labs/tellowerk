@@ -1,10 +1,23 @@
 package listen
 
-type Ears interface {
+import (
+	"errors"
+)
+
+type Ear interface {
 	Listen() string
 }
 
-func NewEars(engine string, config PocketSphinxConfig) (Ears, error) {
+type ListenConfig struct {
+	HMM        string
+	Dict       string
+	LM         string
+	Samples    int
+	SampleRate int `toml:"sample_rate"`
+	Channels   int
+}
+
+func NewEar(engine string, config ListenConfig) (Ear, error) {
 	switch engine {
 	case "sphinx", "pocketsphinx":
 		ears, err := NewPocketSphinx(config)
@@ -14,6 +27,6 @@ func NewEars(engine string, config PocketSphinxConfig) (Ears, error) {
 		}
 		return ears, nil
 	default:
-		panic("unknown engine " + engine)
+		return nil, errors.New("unknown engine: " + engine)
 	}
 }

@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/BurntSushi/toml v0.3.1
+	github.com/francoispqt/onelog v0.0.0-20190306043706-8c2bb31b10a4
 	github.com/gen2brain/flite-go v0.0.0-20170519100317-f4df2119132c
 	github.com/joomcode/errorx v1.0.0
 	github.com/xlab/closer v0.0.0-20190328110542-03326addb7c2

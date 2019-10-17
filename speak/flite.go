@@ -11,10 +11,10 @@ func (f *Flite) Say(text string) error {
 	return nil
 }
 
-func NewFlite(speaker string) *Flite {
+func NewFlite(speaker string) (*Flite, error) {
 	voice, err := flite.VoiceSelect(speaker)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &Flite{voice: voice}
+	return &Flite{voice: voice}, nil
 }

@@ -10,15 +10,6 @@ import (
 	"github.com/xlab/portaudio-go/portaudio"
 )
 
-type PocketSphinxConfig struct {
-	HMM        string
-	Dict       string
-	LM         string
-	Samples    int
-	SampleRate int `toml:"sample_rate"`
-	Channels   int
-}
-
 type PocketSphinx struct {
 	decoder  *sphinx.Decoder
 	stream   *portaudio.Stream
@@ -100,7 +91,7 @@ func (ps *PocketSphinx) paCallback(input unsafe.Pointer, _ unsafe.Pointer, sampl
 	return statusContinue
 }
 
-func NewPocketSphinx(config PocketSphinxConfig) (*PocketSphinx, error) {
+func NewPocketSphinx(config ListenConfig) (*PocketSphinx, error) {
 	err := convertError(portaudio.Initialize())
 	if err != nil {
 		return nil, errorx.Decorate(err, "cannot init PortAudio")
@@ -113,6 +104,7 @@ func NewPocketSphinx(config PocketSphinxConfig) (*PocketSphinx, error) {
 		sphinx.LMFileOption(config.LM),
 		sphinx.SampleRateOption(float32(config.SampleRate)),
 	)
+	sphinx.LogFileOption("/dev/null")(cfg)
 	ps.decoder, err = sphinx.NewDecoder(cfg)
 	if err != nil {
 		return &ps, err
