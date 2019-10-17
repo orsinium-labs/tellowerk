@@ -9,4 +9,5 @@ require (
 	github.com/joomcode/errorx v1.0.0
 	github.com/xlab/pocketsphinx-go v0.0.0-20190320212311-8abf820ce691
 	github.com/xlab/portaudio-go v0.0.0-20170905165025-132d041879db
+	gobot.io/x/gobot v1.14.0
 )

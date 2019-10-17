@@ -5,6 +5,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/francoispqt/onelog"
+	"github.com/orsinium/tellowerk/act"
 	"github.com/orsinium/tellowerk/listen"
 	"github.com/orsinium/tellowerk/speak"
 )
@@ -41,6 +42,11 @@ func main() {
 	if err != nil {
 		logger.FatalWith("cannot make voice").Err("error", err).Write()
 	}
+
+	logger.Info("start thinking")
+	body := act.NewBody()
+	body := act.NewBrain(body)
+	brain.Start()
 
 	logger.Info("start")
 	for {
