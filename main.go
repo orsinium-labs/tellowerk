@@ -2,12 +2,14 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/francoispqt/onelog"
 	"github.com/orsinium/tellowerk/act"
 	"github.com/orsinium/tellowerk/listen"
 	"github.com/orsinium/tellowerk/speak"
+	"github.com/orsinium/tellowerk/think"
 )
 
 type configListen struct {
@@ -26,6 +28,9 @@ type Config struct {
 
 func main() {
 	logger := onelog.New(os.Stdout, onelog.ALL)
+	logger.Hook(func(e onelog.Entry) {
+		e.String("time", time.Now().Format("15:04:05"))
+	})
 
 	var conf Config
 	_, err := toml.DecodeFile("config.toml", &conf)
@@ -45,8 +50,10 @@ func main() {
 
 	logger.Info("start thinking")
 	body := act.NewBody()
-	body := act.NewBrain(body)
+	brain := think.NewBrain(body, logger)
 	brain.Start()
+	defer brain.Stop()
+	// defer body.Halt()
 
 	logger.Info("start")
 	for {
