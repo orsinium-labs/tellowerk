@@ -2,10 +2,10 @@ package listen
 
 import (
 	"errors"
+	"log"
 	"unsafe"
 
 	"github.com/joomcode/errorx"
-	"github.com/xlab/closer"
 	"github.com/xlab/pocketsphinx-go/sphinx"
 	"github.com/xlab/portaudio-go/portaudio"
 )
@@ -85,7 +85,7 @@ func (ps *PocketSphinx) paCallback(input unsafe.Pointer, _ unsafe.Pointer, sampl
 			ps.channel <- hyp
 		}
 		if !ps.decoder.StartUtt() {
-			closer.Fatalln("Sphinx failed to start utterance")
+			log.Fatal("Sphinx failed to start utterance")
 		}
 	}
 	return statusContinue
