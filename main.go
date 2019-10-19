@@ -4,6 +4,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/orsinium/tellowerk/command"
+
 	"github.com/BurntSushi/toml"
 	"github.com/francoispqt/onelog"
 	"github.com/orsinium/tellowerk/act"
@@ -21,6 +23,7 @@ type configSpeak struct {
 	Speaker string
 }
 
+// Config is a storage for all app settings read from config.toml
 type Config struct {
 	Listen configListen
 	Speak  configSpeak
@@ -38,7 +41,13 @@ func main() {
 		logger.FatalWith("cannot read config").Err("error", err).Write()
 	}
 
-	ears, err := listen.NewEar(conf.Listen.Engine, conf.Listen.ListenConfig, logger)
+	ear, err := listen.NewEar(conf.Listen.Engine, conf.Listen.ListenConfig, logger)
+	defer func() {
+		ear.Close()
+		if err != nil {
+			logger.ErrorWith("cannot stop listening").Err("error", err).Write()
+		}
+	}()
 	if err != nil {
 		logger.FatalWith("cannot make ear").Err("error", err).Write()
 	}
@@ -51,15 +60,28 @@ func main() {
 	logger.Info("start thinking")
 	body := act.NewBody()
 	brain := think.NewBrain(body, logger)
-	brain.Start()
-	defer brain.Stop()
-	// defer body.Halt()
+	defer func() {
+		err = brain.Stop()
+		if err != nil {
+			logger.ErrorWith("cannot stop driver").Err("error", err).Write()
+		}
+	}()
 
 	logger.Info("start")
 	for {
-		text := ears.Listen()
-		logger.InfoWith("text heared").String("text", text).Write()
-		err = voice.Say(text)
+		text := ear.Listen()
+		logger.DebugWith("text heared").String("text", text).Write()
+		cmd := command.Understand(text)
+		if cmd.Action == "" {
+			logger.DebugWith("cannot recognize command").String("text", text).Write()
+			continue
+		}
+		err = brain.Do(cmd)
+		if err != nil {
+			logger.ErrorWith("cannot do action").Err("error", err).Write()
+			continue
+		}
+		err = voice.Say(string(cmd.Action))
 		if err != nil {
 			logger.ErrorWith("cannot say").Err("error", err).Write()
 		}

@@ -8,6 +8,7 @@ import (
 
 type Ear interface {
 	Listen() string
+	Close() error
 }
 
 type ListenConfig struct {
@@ -22,12 +23,7 @@ type ListenConfig struct {
 func NewEar(engine string, config ListenConfig, logger *onelog.Logger) (Ear, error) {
 	switch engine {
 	case "sphinx", "pocketsphinx":
-		ears, err := NewPocketSphinx(config, logger)
-		if err != nil {
-			ears.Close()
-			return nil, err
-		}
-		return ears, nil
+		return NewPocketSphinx(config, logger)
 	default:
 		return nil, errors.New("unknown engine: " + engine)
 	}

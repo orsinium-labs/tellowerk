@@ -1,44 +1,45 @@
 package think
 
 import (
-	"time"
+	"errors"
 
 	"github.com/francoispqt/onelog"
-	"gobot.io/x/gobot"
+	"github.com/orsinium/tellowerk/command"
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
-func NewBrain(body *tello.Driver, logger *onelog.Logger) *gobot.Robot {
-	work := func() {
-		logger.Info("start work")
-		err := body.TakeOff()
-		if err != nil {
-			logger.ErrorWith("cannot take off").Err("error", err).Write()
-		}
+// Brain accepts command and says to body what to do.
+type Brain struct {
+	body   *tello.Driver
+	logger *onelog.Logger
+}
 
-		gobot.After(2*time.Second, func() {
-			logger.Info("rotate")
-			body.Clockwise(100)
-			logger.Info("end rotate")
-		})
-
-		gobot.After(6*time.Second, func() {
-			logger.Info("land")
-			body.Clockwise(0)
-			err := body.Land()
-			if err != nil {
-				logger.ErrorWith("cannot land").Err("error", err).Write()
-			}
-			logger.Info("end land")
-		})
-		logger.Info("end work")
+// Do does actions for given command
+func (b *Brain) Do(cmd command.Command) error {
+	b.logger.DebugWith("start doing action").String("action", string(cmd.Action)).Write()
+	switch cmd.Action {
+	case command.Start:
+		return b.start(cmd)
+	case command.Land:
+		return b.land(cmd)
+	case command.TurnLeft:
+		return b.turnLeft(cmd)
 	}
+	return errors.New("unknown command")
+}
 
-	// body.Start()
+// Stop stops the driver
+func (b *Brain) Stop() error {
+	b.logger.Debug("stopping the driver")
+	err := b.body.Halt()
+	if err != nil {
+		return err
+	}
+	b.logger.Debug("command to stop the driver was sent")
+	return nil
+}
 
-	return gobot.NewRobot("tello",
-		[]gobot.Connection{},
-		[]gobot.Device{body},
-		work,
-	)
+// NewBrain creates Brain instance to do actions
+func NewBrain(body *tello.Driver, logger *onelog.Logger) *Brain {
+	return &Brain{body: body, logger: logger}
 }
