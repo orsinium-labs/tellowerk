@@ -1,9 +1,0 @@
-start
-sleep 4
-
-up
-sleep 4
-down
-sleep 4
-
-halt
