@@ -1,0 +1,7 @@
+start
+sleep 2
+turn left 360 degrees
+sleep 6
+land
+sleep 2
+halt
