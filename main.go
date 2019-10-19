@@ -18,6 +18,9 @@ type configListen struct {
 	listen.ListenConfig
 	Engine string
 }
+type configThink struct {
+	Dry bool
+}
 type configSpeak struct {
 	Engine  string
 	Speaker string
@@ -27,6 +30,7 @@ type configSpeak struct {
 type Config struct {
 	Listen configListen
 	Speak  configSpeak
+	Think  configThink
 }
 
 func main() {
@@ -59,7 +63,7 @@ func main() {
 
 	logger.Info("start thinking")
 	body := act.NewBody()
-	brain := think.NewBrain(body, logger)
+	brain := think.NewBrain(conf.Think.Dry, body, logger)
 	defer func() {
 		err = brain.Stop()
 		if err != nil {

@@ -12,11 +12,16 @@ import (
 type Brain struct {
 	body   *tello.Driver
 	logger *onelog.Logger
+	dry    bool
 }
 
 // Do does actions for given command
 func (b *Brain) Do(cmd command.Command) error {
 	b.logger.DebugWith("start doing action").String("action", string(cmd.Action)).Write()
+	if b.dry {
+		b.logger.Debug("dry run")
+		return nil
+	}
 	switch cmd.Action {
 	case command.Start:
 		return b.start(cmd)
@@ -40,6 +45,6 @@ func (b *Brain) Stop() error {
 }
 
 // NewBrain creates Brain instance to do actions
-func NewBrain(body *tello.Driver, logger *onelog.Logger) *Brain {
-	return &Brain{body: body, logger: logger}
+func NewBrain(dry bool, body *tello.Driver, logger *onelog.Logger) *Brain {
+	return &Brain{dry: dry, body: body, logger: logger}
 }
