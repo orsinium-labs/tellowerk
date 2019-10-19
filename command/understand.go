@@ -37,8 +37,10 @@ func getAction(words []string) Action {
 		switch strings.ToLower(word) {
 		case "start", "begin", "launch":
 			return Start
-		case "land", "end", "close":
+		case "land":
 			return Land
+		case "halt", "close", "end":
+			return Halt
 		case "hover", "stop", "wait":
 			return Hover
 		case "left":

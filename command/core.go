@@ -20,6 +20,8 @@ const (
 	Land Action = "land"
 	// Hover means stop doing anything and hover
 	Hover Action = "hover"
+	// Halt means land and disconnect
+	Halt Action = "halt"
 
 	// -- MOVEMENTS -- //
 
