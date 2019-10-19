@@ -51,11 +51,21 @@ func (b *Brain) register(cmd command.Action, handler func(cmd command.Command) e
 
 // NewBrain creates Brain instance to do actions
 func NewBrain(dry bool, body *tello.Driver, logger *onelog.Logger) *Brain {
-	b := Brain{dry: dry, body: body, logger: logger}
+	b := Brain{
+		dry:      dry,
+		body:     body,
+		logger:   logger,
+		registry: make(map[command.Action]func(cmd command.Command) error),
+	}
 
 	b.register(command.Start, b.start)
 	b.register(command.Land, b.land)
-	b.register(command.TurnLeft, b.turnLeft)
+
 	b.register(command.Left, b.left)
+	b.register(command.Right, b.right)
+	b.register(command.Front, b.forward)
+	b.register(command.Back, b.backward)
+
+	b.register(command.TurnLeft, b.turnLeft)
 	return &b
 }

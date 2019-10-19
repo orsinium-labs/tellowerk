@@ -10,6 +10,7 @@ import (
 func (b *Brain) start(cmd command.Command) (err error) {
 	b.logger.Debug("start driver")
 	err = b.body.Start()
+	time.Sleep(500 * time.Millisecond)
 	if err != nil {
 		return errorx.Decorate(err, "cannot start driver")
 	}
@@ -40,7 +41,7 @@ func (b *Brain) turnLeft(cmd command.Command) (err error) {
 	} else if cmd.Units == command.Degrees {
 		msec = time.Duration(cmd.Distance * 12)
 	} else {
-		msec = 4320 // do 360 degrees rotation by default
+		msec = 4000 // do 360 degrees rotation by default
 	}
 
 	// start rotation
@@ -64,33 +65,49 @@ func (b *Brain) turnLeft(cmd command.Command) (err error) {
 	return nil
 }
 
-func (b *Brain) left(cmd command.Command) (err error) {
-	b.logger.DebugWith("start moving").String("direction", "left").Write()
+func (b *Brain) left(cmd command.Command) error {
+	return b.move(b.body.Left, "left", cmd)
+}
+
+func (b *Brain) right(cmd command.Command) error {
+	return b.move(b.body.Right, "right", cmd)
+}
+
+func (b *Brain) forward(cmd command.Command) error {
+	return b.move(b.body.Forward, "forward", cmd)
+}
+
+func (b *Brain) backward(cmd command.Command) error {
+	return b.move(b.body.Backward, "backward", cmd)
+}
+
+func (b *Brain) move(handler func(int) error, direction string, cmd command.Command) (err error) {
+	b.logger.DebugWith("start moving").String("direction", direction).Write()
 	var msec time.Duration
 	if cmd.Units == command.Seconds {
 		msec = time.Duration(cmd.Distance * 1000)
 	} else if cmd.Units == command.Meters {
-		msec = time.Duration(cmd.Distance * 1000)
+		msec = time.Duration(cmd.Distance*1000 - 50)
 	} else {
-		msec = 1000
+		msec = 950
 	}
 
 	// start moving
-	err = b.body.Left(10)
+	err = handler(50)
 	if err != nil {
 		return errorx.Decorate(err, "cannot start moving")
 	}
-	b.logger.DebugWith("moving started").String("direction", "left").Write()
+	b.logger.DebugWith("moving started").String("direction", direction).Write()
 
 	// stop moving
 	time.AfterFunc(msec*time.Millisecond, func() {
-		b.logger.DebugWith("stop moving").String("direction", "left").Write()
-		err = b.body.Left(0)
+		b.logger.DebugWith("stop moving").String("direction", direction).Write()
+		err = handler(0)
 		if err != nil {
 			b.logger.ErrorWith("cannot stop rotation").Err("error", err).Write()
 			return
 		}
-		b.logger.DebugWith("moving stopped").String("direction", "left").Write()
+		b.logger.DebugWith("moving stopped").String("direction", direction).Write()
 	})
 
 	return nil

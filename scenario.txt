@@ -1,7 +1,9 @@
 start
 sleep 4
-turn left 360 degrees
-sleep 6
-land
-sleep 2
+
+back
+sleep 4
+front
+sleep 4
+
 halt

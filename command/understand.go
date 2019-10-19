@@ -47,9 +47,9 @@ func getAction(words []string) Action {
 			return Left
 		case "right":
 			return Right
-		case "back":
+		case "back", "backward":
 			return Back
-		case "front":
+		case "front", "forward":
 			return Front
 		case "down":
 			return Down
