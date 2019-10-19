@@ -67,5 +67,6 @@ func NewBrain(dry bool, body *tello.Driver, logger *onelog.Logger) *Brain {
 	b.register(command.Back, b.backward)
 
 	b.register(command.TurnLeft, b.turnLeft)
+	b.register(command.TurnRight, b.turnRight)
 	return &b
 }
