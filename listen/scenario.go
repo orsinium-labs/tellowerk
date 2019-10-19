@@ -25,15 +25,16 @@ func (s *Scenario) Close() error {
 
 // Listen reads user input from stdin
 func (s *Scenario) Listen() string {
-	s.logger.Debug("eading scenarion")
+	s.logger.Debug("reading scenario")
 	for s.pos < len(s.lines) {
-		line := s.lines[s.pos]
+		line := strings.TrimSpace(s.lines[s.pos])
 		s.pos++
 		if line == "" {
 			continue
 		}
-		if strings.HasSuffix(line, "sleep ") {
+		if strings.HasPrefix(line, "sleep ") {
 			secs, _ := strconv.Atoi(line[6:])
+			s.logger.DebugWith("sleeping").Int("seconds", secs).Write()
 			time.Sleep(time.Duration(secs) * time.Second)
 			continue
 		}

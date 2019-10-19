@@ -31,7 +31,7 @@ func NewEar(engine string, config ListenConfig, logger *onelog.Logger) (Ear, err
 	case "stdin", "console", "terminal":
 		return NewConsole(config, logger)
 	case "scenario", "file":
-		return NewConsole(config, logger)
+		return NewScenario(config, logger)
 	default:
 		return nil, errors.New("unknown engine: " + engine)
 	}

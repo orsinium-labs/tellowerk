@@ -36,6 +36,10 @@ func (b *Brain) Do(cmd command.Command) error {
 // Stop stops the driver
 func (b *Brain) Stop() error {
 	b.logger.Debug("stopping the driver")
+	if b.dry {
+		b.logger.Debug("dry run")
+		return nil
+	}
 	err := b.body.Halt()
 	if err != nil {
 		return err
