@@ -97,7 +97,7 @@ func (ps *PocketSphinx) paCallback(input unsafe.Pointer, _ unsafe.Pointer, sampl
 }
 
 // NewPocketSphinx creates PocketSphinx instance that can listen text from mic
-func NewPocketSphinx(config ListenConfig, logger *onelog.Logger) (*PocketSphinx, error) {
+func NewPocketSphinx(config Config, logger *onelog.Logger) (*PocketSphinx, error) {
 	err := convertError(portaudio.Initialize())
 	if err != nil {
 		return nil, errorx.Decorate(err, "cannot init PortAudio")

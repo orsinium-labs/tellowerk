@@ -10,9 +10,10 @@ import (
 
 // Brain accepts command and says to body what to do.
 type Brain struct {
-	body   *tello.Driver
-	logger *onelog.Logger
-	dry    bool
+	body     *tello.Driver
+	logger   *onelog.Logger
+	dry      bool
+	registry map[command.Action]func(cmd command.Command) error
 }
 
 // Do does actions for given command
@@ -22,15 +23,11 @@ func (b *Brain) Do(cmd command.Command) error {
 		b.logger.Debug("dry run")
 		return nil
 	}
-	switch cmd.Action {
-	case command.Start:
-		return b.start(cmd)
-	case command.Land:
-		return b.land(cmd)
-	case command.TurnLeft:
-		return b.turnLeft(cmd)
+	handler, ok := b.registry[cmd.Action]
+	if !ok {
+		return errors.New("unknown command")
 	}
-	return errors.New("unknown command")
+	return handler(cmd)
 }
 
 // Stop stops the driver
@@ -48,7 +45,17 @@ func (b *Brain) Stop() error {
 	return nil
 }
 
+func (b *Brain) register(cmd command.Action, handler func(cmd command.Command) error) {
+	b.registry[cmd] = handler
+}
+
 // NewBrain creates Brain instance to do actions
 func NewBrain(dry bool, body *tello.Driver, logger *onelog.Logger) *Brain {
-	return &Brain{dry: dry, body: body, logger: logger}
+	b := Brain{dry: dry, body: body, logger: logger}
+
+	b.register(command.Start, b.start)
+	b.register(command.Land, b.land)
+	b.register(command.TurnLeft, b.turnLeft)
+	b.register(command.Left, b.left)
+	return &b
 }

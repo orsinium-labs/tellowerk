@@ -1,5 +1,5 @@
 start
-sleep 2
+sleep 4
 turn left 360 degrees
 sleep 6
 land

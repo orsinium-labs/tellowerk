@@ -12,8 +12,8 @@ type Ear interface {
 	Close() error
 }
 
-// ListenConfig is a format of settings for ears in config.toml
-type ListenConfig struct {
+// Config is a format of settings for ears in config.toml
+type Config struct {
 	HMM        string
 	Dict       string
 	LM         string
@@ -24,7 +24,7 @@ type ListenConfig struct {
 }
 
 // NewEar creates new instance of Ear that can listen for user commands in some way
-func NewEar(engine string, config ListenConfig, logger *onelog.Logger) (Ear, error) {
+func NewEar(engine string, config Config, logger *onelog.Logger) (Ear, error) {
 	switch engine {
 	case "sphinx", "pocketsphinx":
 		return NewPocketSphinx(config, logger)

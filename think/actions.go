@@ -38,7 +38,9 @@ func (b *Brain) turnLeft(cmd command.Command) (err error) {
 	if cmd.Units == command.Seconds {
 		msec = time.Duration(cmd.Distance * 1000)
 	} else if cmd.Units == command.Degrees {
-		msec = time.Duration(cmd.Distance * 100)
+		msec = time.Duration(cmd.Distance * 12)
+	} else {
+		msec = 4320 // do 360 degrees rotation by default
 	}
 
 	// start rotation
@@ -59,6 +61,37 @@ func (b *Brain) turnLeft(cmd command.Command) (err error) {
 		b.logger.Debug("rotation is stopped")
 	})
 
-	b.logger.Debug("turn left command was sent")
+	return nil
+}
+
+func (b *Brain) left(cmd command.Command) (err error) {
+	b.logger.DebugWith("start moving").String("direction", "left").Write()
+	var msec time.Duration
+	if cmd.Units == command.Seconds {
+		msec = time.Duration(cmd.Distance * 1000)
+	} else if cmd.Units == command.Meters {
+		msec = time.Duration(cmd.Distance * 1000)
+	} else {
+		msec = 1000
+	}
+
+	// start moving
+	err = b.body.Left(10)
+	if err != nil {
+		return errorx.Decorate(err, "cannot start moving")
+	}
+	b.logger.DebugWith("moving started").String("direction", "left").Write()
+
+	// stop moving
+	time.AfterFunc(msec*time.Millisecond, func() {
+		b.logger.DebugWith("stop moving").String("direction", "left").Write()
+		err = b.body.Left(0)
+		if err != nil {
+			b.logger.ErrorWith("cannot stop rotation").Err("error", err).Write()
+			return
+		}
+		b.logger.DebugWith("moving stopped").String("direction", "left").Write()
+	})
+
 	return nil
 }

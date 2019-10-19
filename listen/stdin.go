@@ -25,6 +25,6 @@ func (in *Console) Listen() string {
 }
 
 // NewConsole creates a new Console instance to get user input from console
-func NewConsole(config ListenConfig, logger *onelog.Logger) (*Console, error) {
+func NewConsole(config Config, logger *onelog.Logger) (*Console, error) {
 	return &Console{logger: logger}, nil
 }

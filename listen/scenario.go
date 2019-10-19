@@ -29,7 +29,7 @@ func (s *Scenario) Listen() string {
 	for s.pos < len(s.lines) {
 		line := strings.TrimSpace(s.lines[s.pos])
 		s.pos++
-		if line == "" {
+		if line == "" || line[:2] == "//" || line[0] == '#' {
 			continue
 		}
 		if strings.HasPrefix(line, "sleep ") {
@@ -44,7 +44,7 @@ func (s *Scenario) Listen() string {
 }
 
 // NewScenario creates a new Scenario instance to get commands from scenario file
-func NewScenario(config ListenConfig, logger *onelog.Logger) (*Scenario, error) {
+func NewScenario(config Config, logger *onelog.Logger) (*Scenario, error) {
 	s := &Scenario{logger: logger, lines: make([]string, 0)}
 
 	file, err := os.Open(config.Scenario)

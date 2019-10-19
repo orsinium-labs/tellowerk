@@ -15,7 +15,7 @@ import (
 )
 
 type configListen struct {
-	listen.ListenConfig
+	listen.Config
 	Engine string
 }
 type configThink struct {
@@ -45,7 +45,7 @@ func main() {
 		logger.FatalWith("cannot read config").Err("error", err).Write()
 	}
 
-	ear, err := listen.NewEar(conf.Listen.Engine, conf.Listen.ListenConfig, logger)
+	ear, err := listen.NewEar(conf.Listen.Engine, conf.Listen.Config, logger)
 	defer func() {
 		ear.Close()
 		if err != nil {
