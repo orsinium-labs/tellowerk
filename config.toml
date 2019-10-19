@@ -3,11 +3,10 @@ engine = "flite"
 speaker = "rms"
 
 [listen]
-engine = "pocketsphinx"
-hmm =  "/usr/share/pocketsphinx/model/en-us/en-us"
-dict = "/usr/share/pocketsphinx/model/en-us/cmudict-en-us.dict"
-lm =   "/usr/share/pocketsphinx/model/en-us/en-us.lm.bin"
-
+engine = "console"
+hmm    = "/usr/share/pocketsphinx/model/en-us/en-us"
+dict   = "/usr/share/pocketsphinx/model/en-us/cmudict-en-us.dict"
+lm     = "/usr/share/pocketsphinx/model/en-us/en-us.lm.bin"
 samples = 512
 sample_rate = 16000
 channels = 1

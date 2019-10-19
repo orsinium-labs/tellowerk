@@ -10,6 +10,7 @@ import (
 	"github.com/xlab/portaudio-go/portaudio"
 )
 
+// PocketSphinx can listen speech from mic and convert it into the text
 type PocketSphinx struct {
 	decoder  *sphinx.Decoder
 	stream   *portaudio.Stream
@@ -21,6 +22,7 @@ type PocketSphinx struct {
 	uttStarted bool
 }
 
+// Close closes PortAudio, Sphinx decoder, PosrtAudio stream and other low-level shit
 func (ps *PocketSphinx) Close() error {
 	// terminate portaudio
 	err := convertError(portaudio.Terminate())
@@ -48,6 +50,7 @@ func (ps *PocketSphinx) Close() error {
 	return nil
 }
 
+// Listen listens for text
 func (ps *PocketSphinx) Listen() string {
 	return <-ps.channel
 }
@@ -93,6 +96,7 @@ func (ps *PocketSphinx) paCallback(input unsafe.Pointer, _ unsafe.Pointer, sampl
 	return statusContinue
 }
 
+// NewPocketSphinx creates PocketSphinx instance that can listen text from mic
 func NewPocketSphinx(config ListenConfig, logger *onelog.Logger) (*PocketSphinx, error) {
 	err := convertError(portaudio.Initialize())
 	if err != nil {
