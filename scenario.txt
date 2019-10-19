@@ -1,12 +1,9 @@
 start
 sleep 4
 
-turn left 90 degrees
+up
 sleep 4
-front
-sleep 4
-turn right 180 degrees
-front
+down
 sleep 4
 
 halt

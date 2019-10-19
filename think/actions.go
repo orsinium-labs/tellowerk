@@ -89,6 +89,14 @@ func (b *Brain) backward(cmd command.Command) error {
 	return b.move(b.body.Backward, "backward", cmd)
 }
 
+func (b *Brain) up(cmd command.Command) error {
+	return b.move(b.body.Up, "up", cmd)
+}
+
+func (b *Brain) down(cmd command.Command) error {
+	return b.move(b.body.Down, "down", cmd)
+}
+
 func (b *Brain) move(handler func(int) error, direction string, cmd command.Command) (err error) {
 	b.logger.DebugWith("start moving").String("direction", direction).Write()
 	var msec time.Duration
