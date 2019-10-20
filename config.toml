@@ -15,3 +15,6 @@ channels = 1
 
 [think]
 dry = false
+
+[see]
+engine = "show"

@@ -4,7 +4,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/joomcode/errorx"
 	"github.com/orsinium/tellowerk/command"
+	"github.com/orsinium/tellowerk/see"
+	"gobot.io/x/gobot/platforms/dji/tello"
 
 	"github.com/BurntSushi/toml"
 	"github.com/francoispqt/onelog"
@@ -26,11 +29,32 @@ type configSpeak struct {
 	Speaker string
 }
 
+type configSee struct {
+	Engine string
+}
+
 // Config is a storage for all app settings read from config.toml
 type Config struct {
 	Listen configListen
 	Speak  configSpeak
 	Think  configThink
+	See    configSee
+}
+
+func start(logger *onelog.Logger, body *tello.Driver, eye see.Eye) (err error) {
+	logger.Debug("starting driver")
+	err = body.Start()
+	if err != nil {
+		return errorx.Decorate(err, "cannot start driver")
+	}
+	time.Sleep(500 * time.Millisecond)
+
+	logger.Debug("registering video handler")
+	err = body.On(tello.VideoFrameEvent, eye.Handle)
+	if err != nil {
+		return errorx.Decorate(err, "cannot register handler for video")
+	}
+	return nil
 }
 
 func main() {
@@ -45,6 +69,7 @@ func main() {
 		logger.FatalWith("cannot read config").Err("error", err).Write()
 	}
 
+	// ear to read commands
 	ear, err := listen.NewEar(conf.Listen.Engine, conf.Listen.Config, logger)
 	defer func() {
 		ear.Close()
@@ -56,11 +81,13 @@ func main() {
 		logger.FatalWith("cannot make ear").Err("error", err).Write()
 	}
 
+	// voice to say about state
 	voice, err := speak.NewVoice(conf.Speak.Engine, conf.Speak.Speaker)
 	if err != nil {
 		logger.FatalWith("cannot make voice").Err("error", err).Write()
 	}
 
+	// body and brain to execute commands
 	logger.Info("start thinking")
 	body := act.NewBody()
 	brain := think.NewBrain(conf.Think.Dry, body, logger)
@@ -70,6 +97,18 @@ func main() {
 			logger.ErrorWith("cannot stop driver").Err("error", err).Write()
 		}
 	}()
+
+	// eye to handle video
+	eye, err := see.NewEye(conf.See.Engine, logger)
+	defer eye.Close()
+	if err != nil {
+		logger.FatalWith("cannot make eye").Err("error", err).Write()
+	}
+
+	err = start(logger, body, eye)
+	if err != nil {
+		logger.FatalWith("cannot start").Err("error", err).Write()
+	}
 
 	logger.Info("start")
 	for {

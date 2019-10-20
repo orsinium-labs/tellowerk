@@ -8,12 +8,6 @@ import (
 )
 
 func (b *Brain) start(cmd command.Command) (err error) {
-	b.logger.Debug("start driver")
-	err = b.body.Start()
-	time.Sleep(500 * time.Millisecond)
-	if err != nil {
-		return errorx.Decorate(err, "cannot start driver")
-	}
 	b.logger.Debug("start taking off")
 	err = b.body.TakeOff()
 	if err != nil {
