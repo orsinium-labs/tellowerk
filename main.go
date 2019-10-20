@@ -48,9 +48,9 @@ func start(logger *onelog.Logger, body *tello.Driver, eye see.Eye) (err error) {
 	err = body.On(tello.ConnectedEvent, func(data interface{}) {
 		logger.Debug("connected")
 		body.StartVideo()
-		body.SetVideoEncoderRate(tello.VideoBitRateAuto)
+		body.SetVideoEncoderRate(tello.VideoBitRate1M)
 		body.SetExposure(0)
-		gobot.Every(100*time.Millisecond, func() {
+		gobot.Every(4*time.Second, func() {
 			body.StartVideo()
 		})
 	})

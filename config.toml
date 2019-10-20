@@ -19,5 +19,5 @@ dry = false
 [see]
 engine = "opencv"
 model = "models/haarcascade_frontalface_default.xml"
-framex = 960
-framey = 720
+framex = 480
+framey = 360

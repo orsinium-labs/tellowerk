@@ -43,14 +43,15 @@ func (eye *OpenCVEye) Handle(data interface{}) {
 }
 
 func (eye *OpenCVEye) render() {
+	eye.logger.Debug("start video rendering goroutine")
 	for {
-		if eye.ffmpegOut == nil {
+		out := eye.ffmpegOut
+		if out == nil {
 			return
 		}
-		eye.logger.Debug("reading data from ffmpeg")
 		// prepare image matrix
 		buf := make([]byte, eye.FrameSize)
-		_, err := io.ReadFull(eye.ffmpegOut, buf)
+		_, err := io.ReadFull(out, buf)
 		if err != nil {
 			if eye.ffmpegOut == nil {
 				return
@@ -58,7 +59,6 @@ func (eye *OpenCVEye) render() {
 			eye.logger.ErrorWith("cannot read ffmpeg out").Err("error", err).Write()
 			continue
 		}
-		eye.logger.Debug("making matrix")
 		img, err := gocv.NewMatFromBytes(eye.FrameY, eye.FrameX, gocv.MatTypeCV8UC3, buf)
 		if err != nil {
 			eye.logger.ErrorWith("cannot make matrix").Err("error", err).Write()
@@ -71,13 +71,11 @@ func (eye *OpenCVEye) render() {
 		defer img.Close()
 
 		// detect faces
-		eye.logger.Debug("drawing rects")
 		rects := eye.classifier.DetectMultiScale(img)
 		// draw a rectangle around each face on the original image
 		for _, r := range rects {
 			gocv.Rectangle(&img, r, eye.color, 3)
 		}
-		eye.logger.Debug("rendering image")
 		eye.window.IMShow(img)
 		eye.window.WaitKey(1)
 	}
