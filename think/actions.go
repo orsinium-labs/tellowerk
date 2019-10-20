@@ -41,9 +41,9 @@ func (b *Brain) turn(handler func(int) error, direction string, cmd command.Comm
 	if cmd.Units == command.Seconds {
 		msec = time.Duration(cmd.Distance * 1000)
 	} else if cmd.Units == command.Degrees {
-		msec = time.Duration(cmd.Distance * 12)
+		msec = time.Duration(cmd.Distance * 11)
 	} else {
-		msec = 4000 // do 360 degrees rotation by default
+		msec = 1000 // do 90 degrees rotation by default
 	}
 
 	// start rotation
