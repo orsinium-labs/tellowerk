@@ -17,6 +17,9 @@ type ShowEye struct {
 
 // Handle processes a new frame on a screen
 func (eye *ShowEye) Handle(data interface{}) {
+	if eye.stream == nil {
+		return
+	}
 	raw := data.([]byte)
 	_, err := eye.stream.Write(raw)
 	if err != nil {
@@ -25,11 +28,12 @@ func (eye *ShowEye) Handle(data interface{}) {
 }
 
 // Close closes stdin stream to mlayer
-func (eye *ShowEye) Close() error {
+func (eye *ShowEye) Close() (err error) {
 	if eye.stream != nil {
-		return eye.stream.Close()
+		err = eye.stream.Close()
+		eye.stream = nil
 	}
-	return nil
+	return err
 }
 
 // NewShowEye creates ShowEye instance to stream video from drone on a screen

@@ -7,6 +7,7 @@ import (
 	"github.com/joomcode/errorx"
 	"github.com/orsinium/tellowerk/command"
 	"github.com/orsinium/tellowerk/see"
+	"gobot.io/x/gobot"
 	"gobot.io/x/gobot/platforms/dji/tello"
 
 	"github.com/BurntSushi/toml"
@@ -42,18 +43,30 @@ type Config struct {
 }
 
 func start(logger *onelog.Logger, body *tello.Driver, eye see.Eye) (err error) {
-	logger.Debug("starting driver")
-	err = body.Start()
-	if err != nil {
-		return errorx.Decorate(err, "cannot start driver")
-	}
-	time.Sleep(500 * time.Millisecond)
+	logger.Debug("registering connection handler")
+	err = body.On(tello.ConnectedEvent, func(data interface{}) {
+		logger.Debug("connected")
+		body.StartVideo()
+		body.SetVideoEncoderRate(tello.VideoBitRate4M)
+		gobot.Every(100*time.Millisecond, func() {
+			body.StartVideo()
+		})
+	})
 
 	logger.Debug("registering video handler")
 	err = body.On(tello.VideoFrameEvent, eye.Handle)
 	if err != nil {
 		return errorx.Decorate(err, "cannot register handler for video")
 	}
+
+	logger.Debug("starting driver")
+	err = body.Start()
+	if err != nil {
+		return errorx.Decorate(err, "cannot start driver")
+	}
+	time.Sleep(500 * time.Millisecond)
+	logger.Debug("driver started")
+
 	return nil
 }
 
