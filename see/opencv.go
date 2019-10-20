@@ -12,6 +12,7 @@ import (
 )
 
 // OpenCVEye detects face on video stream
+// https://gobot.io/documentation/examples/tello_opencv/
 // https://github.com/hybridgroup/gobot/blob/master/examples/tello_opencv.go
 type OpenCVEye struct {
 	logger *onelog.Logger
@@ -42,38 +43,44 @@ func (eye *OpenCVEye) Handle(data interface{}) {
 }
 
 func (eye *OpenCVEye) render() {
-	if eye.ffmpegOut == nil {
-		return
-	}
-	eye.logger.Debug("reading data from ffmpeg")
-	// prepare image matrix
-	buf := make([]byte, eye.FrameSize)
-	_, err := io.ReadFull(eye.ffmpegOut, buf)
-	if err != nil {
-		eye.logger.ErrorWith("cannot read ffmpeg out").Err("error", err).Write()
-		return
-	}
-	eye.logger.Debug("making matrix")
-	img, err := gocv.NewMatFromBytes(eye.FrameY, eye.FrameX, gocv.MatTypeCV8UC3, buf)
-	if err != nil {
-		eye.logger.ErrorWith("cannot make matrix").Err("error", err).Write()
-		return
-	}
-	if img.Empty() {
-		eye.logger.Debug("empty matrix")
-		return
-	}
-	defer img.Close()
+	for {
+		if eye.ffmpegOut == nil {
+			return
+		}
+		eye.logger.Debug("reading data from ffmpeg")
+		// prepare image matrix
+		buf := make([]byte, eye.FrameSize)
+		_, err := io.ReadFull(eye.ffmpegOut, buf)
+		if err != nil {
+			if eye.ffmpegOut == nil {
+				return
+			}
+			eye.logger.ErrorWith("cannot read ffmpeg out").Err("error", err).Write()
+			continue
+		}
+		eye.logger.Debug("making matrix")
+		img, err := gocv.NewMatFromBytes(eye.FrameY, eye.FrameX, gocv.MatTypeCV8UC3, buf)
+		if err != nil {
+			eye.logger.ErrorWith("cannot make matrix").Err("error", err).Write()
+			continue
+		}
+		if img.Empty() {
+			eye.logger.Debug("empty matrix")
+			continue
+		}
+		defer img.Close()
 
-	// detect faces
-	eye.logger.Debug("drawing rects")
-	rects := eye.classifier.DetectMultiScale(img)
-	// draw a rectangle around each face on the original image
-	for _, r := range rects {
-		gocv.Rectangle(&img, r, eye.color, 3)
+		// detect faces
+		eye.logger.Debug("drawing rects")
+		rects := eye.classifier.DetectMultiScale(img)
+		// draw a rectangle around each face on the original image
+		for _, r := range rects {
+			gocv.Rectangle(&img, r, eye.color, 3)
+		}
+		eye.logger.Debug("rendering image")
+		eye.window.IMShow(img)
+		eye.window.WaitKey(1)
 	}
-	eye.logger.Debug("rendering image")
-	eye.window.IMShow(img)
 }
 
 // Close closes stdin stream to mlayer
@@ -136,10 +143,6 @@ func NewOpenCVEye(logger *onelog.Logger, config Config) (*OpenCVEye, error) {
 		return eye, errors.New("cannot read model")
 	}
 
-	go func() {
-		for {
-			eye.render()
-		}
-	}()
+	go eye.render()
 	return eye, nil
 }
