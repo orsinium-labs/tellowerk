@@ -33,14 +33,12 @@ func (eye *OpenCVEye) Handle(data interface{}) {
 	if eye.ffmpegIn == nil {
 		return
 	}
-	eye.logger.Debug("pipe data into ffmpeg")
 	raw := data.([]byte)
 	_, err := eye.ffmpegIn.Write(raw)
 	if err != nil {
 		eye.logger.ErrorWith("cannot pipe data into ffmpeg").Err("error", err).Write()
 		return
 	}
-	eye.render()
 }
 
 func (eye *OpenCVEye) render() {
@@ -129,9 +127,19 @@ func NewOpenCVEye(logger *onelog.Logger, config Config) (*OpenCVEye, error) {
 	if err != nil {
 		return eye, err
 	}
+	err = ffmpeg.Start()
+	if err != nil {
+		return eye, err
+	}
 
 	if !eye.classifier.Load(config.Model) {
 		return eye, errors.New("cannot read model")
 	}
+
+	go func() {
+		for {
+			eye.render()
+		}
+	}()
 	return eye, nil
 }
