@@ -17,4 +17,7 @@ channels = 1
 dry = false
 
 [see]
-engine = "show"
+engine = "opencv"
+model = "models/haarcascade_frontalface_default.xml"
+framex = 960
+framey = 720

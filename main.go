@@ -31,6 +31,7 @@ type configSpeak struct {
 }
 
 type configSee struct {
+	see.Config
 	Engine string
 }
 
@@ -47,7 +48,8 @@ func start(logger *onelog.Logger, body *tello.Driver, eye see.Eye) (err error) {
 	err = body.On(tello.ConnectedEvent, func(data interface{}) {
 		logger.Debug("connected")
 		body.StartVideo()
-		body.SetVideoEncoderRate(tello.VideoBitRate4M)
+		body.SetVideoEncoderRate(tello.VideoBitRateAuto)
+		body.SetExposure(0)
 		gobot.Every(100*time.Millisecond, func() {
 			body.StartVideo()
 		})
@@ -112,8 +114,13 @@ func main() {
 	}()
 
 	// eye to handle video
-	eye, err := see.NewEye(conf.See.Engine, logger)
-	defer eye.Close()
+	eye, err := see.NewEye(conf.See.Engine, conf.See.Config, logger)
+	defer func() {
+		err = eye.Close()
+		if err != nil {
+			logger.ErrorWith("cannot close eye").Err("error", err).Write()
+		}
+	}()
 	if err != nil {
 		logger.FatalWith("cannot make eye").Err("error", err).Write()
 	}
