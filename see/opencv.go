@@ -44,21 +44,27 @@ func (eye *OpenCVEye) Handle(data interface{}) {
 
 func (eye *OpenCVEye) render() {
 	eye.logger.Debug("start video rendering goroutine")
+	i := 0
 	for {
 		out := eye.ffmpegOut
 		if out == nil {
 			return
 		}
-		// prepare image matrix
+		// read raw frame
 		buf := make([]byte, eye.FrameSize)
 		_, err := io.ReadFull(out, buf)
 		if err != nil {
-			if eye.ffmpegOut == nil {
-				return
-			}
 			eye.logger.ErrorWith("cannot read ffmpeg out").Err("error", err).Write()
 			continue
 		}
+
+		// process every 20th frame
+		i = (i + 1) % 20
+		if i != 0 {
+			continue
+		}
+
+		// make matrix
 		img, err := gocv.NewMatFromBytes(eye.FrameY, eye.FrameX, gocv.MatTypeCV8UC3, buf)
 		if err != nil {
 			eye.logger.ErrorWith("cannot make matrix").Err("error", err).Write()
