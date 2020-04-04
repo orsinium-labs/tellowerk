@@ -158,6 +158,7 @@ func main() {
 
 		// parse command
 		cmd := command.Understand(text)
+		cmd.JobID = jobID
 		if cmd.Action == "" {
 			logger.DebugWith("cannot recognize command").String("text", text).Int("job", jobID).Write()
 			continue

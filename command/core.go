@@ -11,6 +11,7 @@ type Command struct {
 	Action   Action
 	Distance int
 	Units    DistanceUnits
+	JobID    int
 }
 
 const (

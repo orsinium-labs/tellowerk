@@ -37,23 +37,23 @@ func (b *Brain) cancel() {
 // up and down //
 
 func (b *Brain) start(cmd command.Command) (err error) {
-	b.logger.Debug("start taking off")
+	b.logger.DebugWith("start taking off").Int("job", cmd.JobID).Write()
 	err = b.body.TakeOff()
 	if err != nil {
 		return errorx.Decorate(err, "cannot take of")
 	}
-	b.logger.Debug("take off command was sent")
+	b.logger.DebugWith("take off command was sent").Int("job", cmd.JobID).Write()
 	return nil
 }
 
 func (b *Brain) land(cmd command.Command) (err error) {
 	b.cancel()
-	b.logger.Debug("start landing")
+	b.logger.DebugWith("start landing").Int("job", cmd.JobID).Write()
 	err = b.body.Land()
 	if err != nil {
 		return errorx.Decorate(err, "cannot land")
 	}
-	b.logger.Debug("landing command was sent")
+	b.logger.DebugWith("landing command was sent").Int("job", cmd.JobID).Write()
 	return nil
 }
 
@@ -68,7 +68,7 @@ func (b *Brain) turnRight(cmd command.Command) (err error) {
 }
 
 func (b *Brain) turn(handler func(int) error, direction string, cmd command.Command) (err error) {
-	b.logger.DebugWith("start rotation").String("direction", direction).Write()
+	b.logger.DebugWith("start rotation").String("direction", direction).Int("job", cmd.JobID).Write()
 	var msec time.Duration
 	if cmd.Units == command.Seconds {
 		msec = time.Duration(cmd.Distance * 1000)
@@ -83,17 +83,17 @@ func (b *Brain) turn(handler func(int) error, direction string, cmd command.Comm
 	if err != nil {
 		return errorx.Decorate(err, "cannot start rotation")
 	}
-	b.logger.DebugWith("rotation is started").String("direction", direction).Write()
+	b.logger.DebugWith("rotation is started").String("direction", direction).Int("job", cmd.JobID).Write()
 
 	// stop rotation
 	go b.after(msec*time.Millisecond, func() {
-		b.logger.DebugWith("stop rotation").String("direction", direction).Write()
+		b.logger.DebugWith("stop rotation").String("direction", direction).Int("job", cmd.JobID).Write()
 		err = b.body.Clockwise(0)
 		if err != nil {
-			b.logger.ErrorWith("cannot stop rotation").Err("error", err).Write()
+			b.logger.ErrorWith("cannot stop rotation").Err("error", err).Int("job", cmd.JobID).Write()
 			return
 		}
-		b.logger.DebugWith("rotation is stopped").String("direction", direction).Write()
+		b.logger.DebugWith("rotation is stopped").String("direction", direction).Int("job", cmd.JobID).Write()
 	})
 
 	return nil
@@ -126,7 +126,7 @@ func (b *Brain) down(cmd command.Command) error {
 }
 
 func (b *Brain) move(handler func(int) error, direction string, cmd command.Command) (err error) {
-	b.logger.DebugWith("start moving").String("direction", direction).Write()
+	b.logger.DebugWith("start moving").String("direction", direction).Int("job", cmd.JobID).Write()
 	var msec time.Duration
 	if cmd.Units == command.Seconds {
 		msec = time.Duration(cmd.Distance * 1000)
@@ -141,17 +141,17 @@ func (b *Brain) move(handler func(int) error, direction string, cmd command.Comm
 	if err != nil {
 		return errorx.Decorate(err, "cannot start moving")
 	}
-	b.logger.DebugWith("moving started").String("direction", direction).Write()
+	b.logger.DebugWith("moving started").String("direction", direction).Int("job", cmd.JobID).Write()
 
 	// stop moving
 	go b.after(msec*time.Millisecond, func() {
-		b.logger.DebugWith("stop moving").String("direction", direction).Write()
+		b.logger.DebugWith("stop moving").String("direction", direction).Int("job", cmd.JobID).Write()
 		err = handler(0)
 		if err != nil {
-			b.logger.ErrorWith("cannot stop rotation").Err("error", err).Write()
+			b.logger.ErrorWith("cannot stop rotation").Err("error", err).Int("job", cmd.JobID).Write()
 			return
 		}
-		b.logger.DebugWith("moving stopped").String("direction", direction).Write()
+		b.logger.DebugWith("moving stopped").String("direction", direction).Int("job", cmd.JobID).Write()
 	})
 
 	return nil

@@ -20,7 +20,7 @@ type Brain struct {
 
 // Do does actions for given command
 func (b *Brain) Do(cmd command.Command) error {
-	b.logger.DebugWith("start doing action").String("action", string(cmd.Action)).Write()
+	b.logger.DebugWith("start doing action").String("action", string(cmd.Action)).Int("job", cmd.JobID).Write()
 	if b.dry {
 		b.logger.Debug("dry run")
 		return nil
