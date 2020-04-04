@@ -149,34 +149,34 @@ func main() {
 	}
 
 	logger.Info("start")
-	var jobID int8
+	var jobID int
 	for {
 		jobID = (jobID + 1) % 100
 		// read command
 		text := ear.Listen()
-		logger.DebugWith("text heared").String("text", text).Write()
+		logger.DebugWith("text heared").String("text", text).Int("job", jobID).Write()
 
 		// parse command
 		cmd := command.Understand(text)
 		if cmd.Action == "" {
-			logger.DebugWith("cannot recognize command").String("text", text).Write()
+			logger.DebugWith("cannot recognize command").String("text", text).Int("job", jobID).Write()
 			continue
 		}
 
 		err = voice.Say(string(cmd.Action))
 		if err != nil {
-			logger.ErrorWith("cannot say").Err("error", err).Write()
+			logger.ErrorWith("cannot say").Err("error", err).Int("job", jobID).Write()
 		}
 
 		// act
 		if cmd.Action == command.Halt {
-			logger.Info("halt command received")
+			logger.InfoWith("halt command received").Int("job", jobID).Write()
 			// we're doing halt and clean-up in defers
 			return
 		}
 		err = brain.Do(cmd)
 		if err != nil {
-			logger.ErrorWith("cannot do action").Err("error", err).Write()
+			logger.ErrorWith("cannot do action").Err("error", err).Int("job", jobID).Write()
 			continue
 		}
 	}
