@@ -47,13 +47,31 @@ func start(logger *onelog.Logger, body *tello.Driver, eye see.Eye) (err error) {
 	logger.Debug("registering connection handler")
 	err = body.On(tello.ConnectedEvent, func(data interface{}) {
 		logger.Debug("connected")
-		body.StartVideo()
-		body.SetVideoEncoderRate(tello.VideoBitRate1M)
-		body.SetExposure(0)
+		err = body.StartVideo()
+		if err != nil {
+			logger.ErrorWith("cannot start video").Err("error", err).Write()
+			return
+		}
+		err = body.SetVideoEncoderRate(tello.VideoBitRate1M)
+		if err != nil {
+			logger.ErrorWith("cannot set encoder rate").Err("error", err).Write()
+			return
+		}
+		err = body.SetExposure(0)
+		if err != nil {
+			logger.ErrorWith("cannot set exposure").Err("error", err).Write()
+			return
+		}
 		gobot.Every(4*time.Second, func() {
-			body.StartVideo()
+			err = body.StartVideo()
+			if err != nil {
+				logger.ErrorWith("cannot restart video").Err("error", err).Write()
+			}
 		})
 	})
+	if err != nil {
+		return errorx.Decorate(err, "cannot register handler for connection")
+	}
 
 	logger.Debug("registering video handler")
 	err = body.On(tello.VideoFrameEvent, eye.Handle)
@@ -131,7 +149,9 @@ func main() {
 	}
 
 	logger.Info("start")
+	var jobID int8
 	for {
+		jobID = (jobID + 1) % 100
 		// read command
 		text := ear.Listen()
 		logger.DebugWith("text heared").String("text", text).Write()

@@ -8,7 +8,7 @@ import (
 
 // Understand parses text into Command
 func Understand(text string) Command {
-	rex := regexp.MustCompile("\\w+")
+	rex := regexp.MustCompile(`\w+`)
 	words := rex.FindAllString(text, -1)
 	command := Command{}
 	command.Action = getAction(words)
