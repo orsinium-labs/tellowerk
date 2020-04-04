@@ -11,14 +11,14 @@ import (
 // after is a blocking wrapper that calls all `cancels`
 // and then  calls the `action` when given `duration` expires
 // or if `cancel` from `cancels` is called.
-func (b *Brain) after(duration time.Duration, action func()) {
+func (b *Brain) after(duration time.Duration, jobID int, action func()) {
 	b.cancel()
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
-	b.logger.Debug("pushing action")
+	b.logger.DebugWith("pushing action").Int("job", jobID).Write()
 	b.cancels <- cancel
-	b.logger.Debug("action has been pushed")
+	b.logger.DebugWith("action has been pushed").Int("job", jobID).Write()
 	<-ctx.Done()
-	b.logger.Debug("an action is called")
+	b.logger.DebugWith("an action is called").Int("job", jobID).Write()
 	action()
 }
 
@@ -86,7 +86,7 @@ func (b *Brain) turn(handler func(int) error, direction string, cmd command.Comm
 	b.logger.DebugWith("rotation is started").String("direction", direction).Int("job", cmd.JobID).Write()
 
 	// stop rotation
-	go b.after(msec*time.Millisecond, func() {
+	go b.after(msec*time.Millisecond, cmd.JobID, func() {
 		b.logger.DebugWith("stop rotation").String("direction", direction).Int("job", cmd.JobID).Write()
 		err = b.body.Clockwise(0)
 		if err != nil {
@@ -144,7 +144,7 @@ func (b *Brain) move(handler func(int) error, direction string, cmd command.Comm
 	b.logger.DebugWith("moving started").String("direction", direction).Int("job", cmd.JobID).Write()
 
 	// stop moving
-	go b.after(msec*time.Millisecond, func() {
+	go b.after(msec*time.Millisecond, cmd.JobID, func() {
 		b.logger.DebugWith("stop moving").String("direction", direction).Int("job", cmd.JobID).Write()
 		err = handler(0)
 		if err != nil {
