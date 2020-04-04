@@ -18,6 +18,6 @@ dry = false
 
 [see]
 engine = "opencv"
-model = "models/haarcascade_frontalface_default.xml"
+model = "/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml"
 framex = 480
 framey = 360
