@@ -57,7 +57,10 @@ func NewBrain(dry bool, body *tello.Driver, logger *onelog.Logger) *Brain {
 		body:     body,
 		logger:   logger,
 		registry: make(map[command.Action]func(cmd command.Command) error),
-		delayed:  DelayedCalls{queue: make(chan *DelayedCall, 100)},
+		delayed: DelayedCalls{
+			queue:  make(chan *DelayedCall, 100),
+			logger: logger,
+		},
 	}
 
 	b.register(command.Start, b.start)
