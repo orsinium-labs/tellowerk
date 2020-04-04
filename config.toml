@@ -14,7 +14,7 @@ sample_rate = 16000
 channels = 1
 
 [think]
-dry = false
+dry = true
 
 [see]
 engine = "opencv"

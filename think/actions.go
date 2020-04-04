@@ -1,7 +1,6 @@
 package think
 
 import (
-	"context"
 	"time"
 
 	"github.com/joomcode/errorx"
@@ -12,26 +11,12 @@ import (
 // and then  calls the `action` when given `duration` expires
 // or if `cancel` from `cancels` is called.
 func (b *Brain) after(duration time.Duration, jobID int, action func()) {
-	b.cancel()
-	ctx, cancel := context.WithTimeout(context.Background(), duration)
-	b.logger.DebugWith("pushing action").Int("job", jobID).Write()
-	b.cancels <- cancel
-	b.logger.DebugWith("action has been pushed").Int("job", jobID).Write()
-	<-ctx.Done()
-	b.logger.DebugWith("an action is called").Int("job", jobID).Write()
-	action()
+	delayed := b.delayed.Add(duration, jobID, action)
+	go delayed.Do()
 }
 
 func (b *Brain) cancel() {
-	for {
-		select {
-		case cancel := <-b.cancels:
-			b.logger.Debug("call an old action")
-			cancel()
-		default:
-			return
-		}
-	}
+	b.delayed.Run()
 }
 
 // up and down //
@@ -47,7 +32,9 @@ func (b *Brain) start(cmd command.Command) (err error) {
 }
 
 func (b *Brain) land(cmd command.Command) (err error) {
+	b.logger.DebugWith("cancelling old actions").Int("job", cmd.JobID).Write()
 	b.cancel()
+
 	b.logger.DebugWith("start landing").Int("job", cmd.JobID).Write()
 	err = b.body.Land()
 	if err != nil {
@@ -68,6 +55,9 @@ func (b *Brain) turnRight(cmd command.Command) (err error) {
 }
 
 func (b *Brain) turn(handler func(int) error, direction string, cmd command.Command) (err error) {
+	b.logger.DebugWith("cancelling old actions").Int("job", cmd.JobID).Write()
+	b.cancel()
+
 	b.logger.DebugWith("start rotation").String("direction", direction).Int("job", cmd.JobID).Write()
 	var msec time.Duration
 	if cmd.Units == command.Seconds {
@@ -126,6 +116,9 @@ func (b *Brain) down(cmd command.Command) error {
 }
 
 func (b *Brain) move(handler func(int) error, direction string, cmd command.Command) (err error) {
+	b.logger.DebugWith("cancelling old actions").Int("job", cmd.JobID).Write()
+	b.cancel()
+
 	b.logger.DebugWith("start moving").String("direction", direction).Int("job", cmd.JobID).Write()
 	var msec time.Duration
 	if cmd.Units == command.Seconds {
