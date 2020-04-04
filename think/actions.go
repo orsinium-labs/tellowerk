@@ -1,11 +1,40 @@
 package think
 
 import (
+	"context"
 	"time"
 
 	"github.com/joomcode/errorx"
 	"github.com/orsinium-labs/tellowerk/command"
 )
+
+// after is a blocking wrapper that calls all `cancels`
+// and then  calls the `action` when given `duration` expires
+// or if `cancel` from `cancels` is called.
+func (b *Brain) after(duration time.Duration, action func()) {
+	b.cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), duration)
+	b.logger.Debug("pushing action")
+	b.cancels <- cancel
+	b.logger.Debug("action has been pushed")
+	<-ctx.Done()
+	b.logger.Debug("an action is called")
+	action()
+}
+
+func (b *Brain) cancel() {
+	for {
+		select {
+		case cancel := <-b.cancels:
+			b.logger.Debug("call an old action")
+			cancel()
+		default:
+			return
+		}
+	}
+}
+
+// up and down //
 
 func (b *Brain) start(cmd command.Command) (err error) {
 	b.logger.Debug("start taking off")
@@ -18,6 +47,7 @@ func (b *Brain) start(cmd command.Command) (err error) {
 }
 
 func (b *Brain) land(cmd command.Command) (err error) {
+	b.cancel()
 	b.logger.Debug("start landing")
 	err = b.body.Land()
 	if err != nil {
@@ -26,6 +56,8 @@ func (b *Brain) land(cmd command.Command) (err error) {
 	b.logger.Debug("landing command was sent")
 	return nil
 }
+
+// rotation oxy //
 
 func (b *Brain) turnLeft(cmd command.Command) (err error) {
 	return b.turn(b.body.CounterClockwise, "left", cmd)
@@ -54,7 +86,7 @@ func (b *Brain) turn(handler func(int) error, direction string, cmd command.Comm
 	b.logger.DebugWith("rotation is started").String("direction", direction).Write()
 
 	// stop rotation
-	time.AfterFunc(msec*time.Millisecond, func() {
+	go b.after(msec*time.Millisecond, func() {
 		b.logger.DebugWith("stop rotation").String("direction", direction).Write()
 		err = b.body.Clockwise(0)
 		if err != nil {
@@ -66,6 +98,8 @@ func (b *Brain) turn(handler func(int) error, direction string, cmd command.Comm
 
 	return nil
 }
+
+// movement oxy //
 
 func (b *Brain) left(cmd command.Command) error {
 	return b.move(b.body.Left, "left", cmd)
@@ -110,7 +144,7 @@ func (b *Brain) move(handler func(int) error, direction string, cmd command.Comm
 	b.logger.DebugWith("moving started").String("direction", direction).Write()
 
 	// stop moving
-	time.AfterFunc(msec*time.Millisecond, func() {
+	go b.after(msec*time.Millisecond, func() {
 		b.logger.DebugWith("stop moving").String("direction", direction).Write()
 		err = handler(0)
 		if err != nil {

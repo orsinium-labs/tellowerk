@@ -1,6 +1,7 @@
 package think
 
 import (
+	"context"
 	"errors"
 
 	"github.com/francoispqt/onelog"
@@ -14,6 +15,7 @@ type Brain struct {
 	logger   *onelog.Logger
 	dry      bool
 	registry map[command.Action]func(cmd command.Command) error
+	cancels  chan context.CancelFunc
 }
 
 // Do does actions for given command
@@ -56,6 +58,7 @@ func NewBrain(dry bool, body *tello.Driver, logger *onelog.Logger) *Brain {
 		body:     body,
 		logger:   logger,
 		registry: make(map[command.Action]func(cmd command.Command) error),
+		cancels:  make(chan context.CancelFunc),
 	}
 
 	b.register(command.Start, b.start)
