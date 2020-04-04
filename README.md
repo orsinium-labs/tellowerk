@@ -25,3 +25,21 @@ Experiments with [DJI Tello](https://store.dji.com/product/tello?vid=38421) dron
 - [ ] Follow a face by movements to always stay on front of it
 - [ ] Obstacles recognition
 - [ ] Obstacles avoidance
+
+## Installation
+
+```bash
+# see
+cd
+go get -u -d gocv.io/x/gocv
+cd go/src/gocv.io/x/gocv
+make install
+
+go get github.com/orsinium-labs/tellowerk
+
+# speak
+sudo apt install flite
+
+# listen
+sudo apt install pocketsphinx libpocketsphinx3 libpocketsphinx-dev pocketsphinx-en-us
+```
