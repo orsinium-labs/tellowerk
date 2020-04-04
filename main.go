@@ -5,17 +5,17 @@ import (
 	"time"
 
 	"github.com/joomcode/errorx"
-	"github.com/orsinium/tellowerk/command"
-	"github.com/orsinium/tellowerk/see"
+	"github.com/orsinium-labs/tellowerk/command"
+	"github.com/orsinium-labs/tellowerk/see"
 	"gobot.io/x/gobot"
 	"gobot.io/x/gobot/platforms/dji/tello"
 
 	"github.com/BurntSushi/toml"
 	"github.com/francoispqt/onelog"
-	"github.com/orsinium/tellowerk/act"
-	"github.com/orsinium/tellowerk/listen"
-	"github.com/orsinium/tellowerk/speak"
-	"github.com/orsinium/tellowerk/think"
+	"github.com/orsinium-labs/tellowerk/act"
+	"github.com/orsinium-labs/tellowerk/listen"
+	"github.com/orsinium-labs/tellowerk/speak"
+	"github.com/orsinium-labs/tellowerk/think"
 )
 
 type configListen struct {

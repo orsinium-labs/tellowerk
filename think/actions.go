@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/joomcode/errorx"
-	"github.com/orsinium/tellowerk/command"
+	"github.com/orsinium-labs/tellowerk/command"
 )
 
 func (b *Brain) start(cmd command.Command) (err error) {

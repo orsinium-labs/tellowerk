@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/francoispqt/onelog"
-	"github.com/orsinium/tellowerk/command"
+	"github.com/orsinium-labs/tellowerk/command"
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
