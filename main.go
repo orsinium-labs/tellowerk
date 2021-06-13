@@ -13,10 +13,33 @@ func run(logger *zap.Logger) error {
 	var err error
 
 	config := DefaultConfig()
+	driver := tello.NewDriver(fmt.Sprintf("%d", config.Port))
+
+	finfo := FlightInfo{}
+	err = finfo.Subscribe(driver)
+	if err != nil {
+		return fmt.Errorf("subscribe to flight info: %v", err)
+	}
+
+	video := Video{
+		driver: driver,
+		logger: logger,
+	}
+	err = video.Start()
+	if err != nil {
+		return fmt.Errorf("start video: %v", err)
+	}
+	defer func() {
+		err = video.Stop()
+		if err != nil {
+			logger.Error("cannot stop video", zap.Error(err))
+		}
+	}()
 
 	controller := Controller{
-		driver: tello.NewDriver(fmt.Sprintf("%d", config.Port)),
+		driver: driver,
 		logger: logger,
+		fly:    config.Fly,
 	}
 	err = controller.Start()
 	if err != nil {
@@ -29,17 +52,16 @@ func run(logger *zap.Logger) error {
 		}
 	}()
 
-	finfo := FlightInfo{}
-	err = finfo.Subscribe(controller.driver)
-	if err != nil {
-		return fmt.Errorf("subscribe to flight info: %v", err)
-	}
-
 	err = controller.TakeOff()
 	if err != nil {
 		return fmt.Errorf("take off: %v", err)
 	}
 	time.Sleep(4 * time.Second)
+	err = controller.Clockwise()
+	if err != nil {
+		return fmt.Errorf("clockwise: %v", err)
+	}
+	time.Sleep(10 * time.Second)
 	err = controller.Land()
 	if err != nil {
 		return fmt.Errorf("land: %v", err)

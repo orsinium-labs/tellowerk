@@ -8,6 +8,7 @@ import (
 type Controller struct {
 	driver *tello.Driver
 	logger *zap.Logger
+	fly    bool
 }
 
 func (c *Controller) Start() error {
@@ -24,10 +25,24 @@ func (c *Controller) Stop() error {
 
 func (c *Controller) TakeOff() error {
 	c.logger.Debug("take off")
+	if !c.fly {
+		return nil
+	}
 	return c.driver.TakeOff()
+}
+
+func (c *Controller) Clockwise() error {
+	c.logger.Debug("rotate clockwise")
+	if !c.fly {
+		return nil
+	}
+	return c.driver.Clockwise(100)
 }
 
 func (c *Controller) Land() error {
 	c.logger.Debug("land")
+	if !c.fly {
+		return nil
+	}
 	return c.driver.Land()
 }
