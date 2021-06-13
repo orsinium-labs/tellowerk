@@ -21,16 +21,16 @@ func run(logger *zap.Logger) error {
 		return fmt.Errorf("subscribe to flight info: %v", err)
 	}
 
-	video := Video{
+	mplayer := MPlayer{
 		driver: driver,
 		logger: logger,
 	}
-	err = video.Start()
+	err = mplayer.Start()
 	if err != nil {
 		return fmt.Errorf("start video: %v", err)
 	}
 	defer func() {
-		err = video.Stop()
+		err = mplayer.Stop()
 		if err != nil {
 			logger.Error("cannot stop video", zap.Error(err))
 		}
