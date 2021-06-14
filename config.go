@@ -10,6 +10,6 @@ func DefaultConfig() Config {
 	return Config{
 		Port:      8890,
 		GamepadID: 1,
-		Fly:       true,
+		Fly:       false,
 	}
 }

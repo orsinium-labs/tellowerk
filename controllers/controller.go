@@ -7,7 +7,10 @@ type Controller interface {
 	Stop() error
 
 	TakeOff() error
+	ThrowTakeOff() error
 	Land() error
+	PalmLand() error
+	StopLanding() error
 
 	// movement
 	Clockwise(int) error

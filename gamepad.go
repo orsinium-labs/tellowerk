@@ -49,12 +49,24 @@ func (g *GamePad) worker() {
 func (g *GamePad) update(oldS, newS gamepad.State) error {
 	var err error
 
-	// nahdle take off and land
+	// handle take off and land
 	if !oldS.A() && newS.A() {
 		return g.controller.TakeOff()
 	}
+	if !oldS.X() && newS.X() {
+		return g.controller.ThrowTakeOff()
+	}
 	if !oldS.B() && newS.B() {
 		return g.controller.Land()
+	}
+	if oldS.B() && !newS.B() {
+		return g.controller.StopLanding()
+	}
+	if !oldS.Y() && newS.Y() {
+		return g.controller.PalmLand()
+	}
+	if oldS.Y() && !newS.Y() {
+		return g.controller.StopLanding()
 	}
 
 	// handle ox rotation

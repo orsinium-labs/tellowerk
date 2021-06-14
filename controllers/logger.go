@@ -26,10 +26,15 @@ func (c *Logger) Stop() error {
 	return nil
 }
 
-// Commands
+// take off and land
 
 func (c *Logger) TakeOff() error {
 	c.logger.Debug("take off")
+	return nil
+}
+
+func (c *Logger) ThrowTakeOff() error {
+	c.logger.Debug("throw take off")
 	return nil
 }
 
@@ -37,6 +42,18 @@ func (c *Logger) Land() error {
 	c.logger.Debug("land")
 	return nil
 }
+
+func (c *Logger) PalmLand() error {
+	c.logger.Debug("palm land")
+	return nil
+}
+
+func (c *Logger) StopLanding() error {
+	c.logger.Debug("stop landing")
+	return nil
+}
+
+// movment
 
 func (c *Logger) Clockwise(val int) error {
 	c.logger.Debug("rotate clockwise", zap.Int("val", val))

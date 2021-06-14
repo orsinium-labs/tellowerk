@@ -52,6 +52,16 @@ func (c *Multiplexer) TakeOff() error {
 	return nil
 }
 
+func (c *Multiplexer) ThrowTakeOff() error {
+	for _, sub := range c.controllers {
+		err := sub.ThrowTakeOff()
+		if err != nil {
+			return fmt.Errorf("throw take off (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
 func (c *Multiplexer) Land() error {
 	for _, sub := range c.controllers {
 		err := sub.Land()
@@ -61,6 +71,28 @@ func (c *Multiplexer) Land() error {
 	}
 	return nil
 }
+
+func (c *Multiplexer) PalmLand() error {
+	for _, sub := range c.controllers {
+		err := sub.PalmLand()
+		if err != nil {
+			return fmt.Errorf("palm land (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) StopLanding() error {
+	for _, sub := range c.controllers {
+		err := sub.StopLanding()
+		if err != nil {
+			return fmt.Errorf("stop landing (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
+// movement
 
 func (c *Multiplexer) Clockwise(val int) error {
 	for _, sub := range c.controllers {
