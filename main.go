@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/orsinium-labs/tellowerk/controllers"
 	"go.uber.org/zap"
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
@@ -36,10 +37,10 @@ func run(logger *zap.Logger) error {
 		}
 	}()
 
-	controller := Controller{
-		driver: driver,
-		logger: logger,
-		fly:    config.Fly,
+	controller := controllers.NewMultiplexer()
+	controller.Add(controllers.NewLogger(logger))
+	if config.Fly {
+		controller.Add(controllers.NewDriver(driver))
 	}
 	err = controller.Start()
 	if err != nil {
