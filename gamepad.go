@@ -69,5 +69,41 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		return err
 	}
 
+	// handle oy movement
+	if oldS.LS().Y != newS.LS().Y {
+		if newS.LS().Y >= 0 {
+			err = g.controller.Backward(newS.LS().Y)
+		} else {
+			err = g.controller.Forward(-newS.LS().Y)
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	// handle ox movement
+	if oldS.RS().X != newS.RS().X {
+		if newS.RS().X >= 0 {
+			err = g.controller.Right(newS.RS().X)
+		} else {
+			err = g.controller.Left(-newS.RS().X)
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	// handle oz movement
+	if oldS.RS().Y != newS.RS().Y {
+		if newS.RS().Y >= 0 {
+			err = g.controller.Down(newS.RS().Y)
+		} else {
+			err = g.controller.Up(-newS.RS().Y)
+		}
+	}
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -47,3 +47,33 @@ func (c *Logger) CounterClockwise(val int) error {
 	c.logger.Debug("rotate counter clockwise", zap.Int("val", val))
 	return nil
 }
+
+func (c *Logger) Forward(val int) error {
+	c.logger.Debug("forward", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) Backward(val int) error {
+	c.logger.Debug("backward", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) Left(val int) error {
+	c.logger.Debug("left", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) Right(val int) error {
+	c.logger.Debug("right", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) Up(val int) error {
+	c.logger.Debug("up", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) Down(val int) error {
+	c.logger.Debug("down", zap.Int("val", val))
+	return nil
+}

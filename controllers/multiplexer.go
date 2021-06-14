@@ -81,3 +81,63 @@ func (c *Multiplexer) CounterClockwise(val int) error {
 	}
 	return nil
 }
+
+func (c *Multiplexer) Forward(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.Forward(val)
+		if err != nil {
+			return fmt.Errorf("forward (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) Backward(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.Backward(val)
+		if err != nil {
+			return fmt.Errorf("backward (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) Left(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.Left(val)
+		if err != nil {
+			return fmt.Errorf("left (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) Right(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.Right(val)
+		if err != nil {
+			return fmt.Errorf("right (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) Up(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.Up(val)
+		if err != nil {
+			return fmt.Errorf("up (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) Down(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.Down(val)
+		if err != nil {
+			return fmt.Errorf("down (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
