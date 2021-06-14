@@ -117,7 +117,7 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		return err
 	}
 
-	// handle flips
+	// handle tricks like flips
 	if !oldS.DPadLeft() && newS.DPadLeft() {
 		err = g.controller.LeftFlip()
 	} else if !oldS.DPadRight() && newS.DPadRight() {
@@ -126,6 +126,19 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		err = g.controller.FrontFlip()
 	} else if !oldS.DPadDown() && newS.DPadDown() {
 		err = g.controller.BackFlip()
+	} else if !oldS.LB() && newS.LB() {
+		err = g.controller.Bounce()
+	}
+	if err != nil {
+		return err
+	}
+
+	// handle speed settings
+	if oldS.LT() != 100 && newS.LT() == 100 {
+		err = g.controller.SetFastMode()
+	}
+	if oldS.LT() != -100 && newS.LT() == -100 {
+		err = g.controller.SetSlowMode()
 	}
 	if err != nil {
 		return err

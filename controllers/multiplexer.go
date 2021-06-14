@@ -213,3 +213,33 @@ func (c *Multiplexer) BackFlip() error {
 	}
 	return nil
 }
+
+func (c *Multiplexer) Bounce() error {
+	for _, sub := range c.controllers {
+		err := sub.Bounce()
+		if err != nil {
+			return fmt.Errorf("bounce (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) SetFastMode() error {
+	for _, sub := range c.controllers {
+		err := sub.SetFastMode()
+		if err != nil {
+			return fmt.Errorf("fast mode (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) SetSlowMode() error {
+	for _, sub := range c.controllers {
+		err := sub.SetSlowMode()
+		if err != nil {
+			return fmt.Errorf("slow mode (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}

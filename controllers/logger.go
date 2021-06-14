@@ -114,3 +114,18 @@ func (c *Logger) BackFlip() error {
 	c.logger.Debug("back flip")
 	return nil
 }
+
+func (c *Logger) Bounce() error {
+	c.logger.Debug("bounce")
+	return nil
+}
+
+func (c *Logger) SetFastMode() error {
+	c.logger.Debug("fast mode")
+	return nil
+}
+
+func (c *Logger) SetSlowMode() error {
+	c.logger.Debug("slow mode")
+	return nil
+}

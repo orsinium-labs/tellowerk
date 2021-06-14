@@ -6,6 +6,7 @@ type Controller interface {
 	Start() error
 	Stop() error
 
+	// take off and land
 	TakeOff() error
 	ThrowTakeOff() error
 	Land() error
@@ -22,8 +23,14 @@ type Controller interface {
 	Down(int) error
 	Up(int) error
 
+	// tricks
 	LeftFlip() error
 	RightFlip() error
 	FrontFlip() error
 	BackFlip() error
+	Bounce() error
+
+	// speed control
+	SetFastMode() error
+	SetSlowMode() error
 }
