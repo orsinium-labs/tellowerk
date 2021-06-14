@@ -9,5 +9,6 @@ type Controller interface {
 	TakeOff() error
 	Land() error
 
-	Clockwise() error
+	Clockwise(int) error
+	CounterClockwise(int) error
 }

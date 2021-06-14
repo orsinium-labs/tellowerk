@@ -62,11 +62,21 @@ func (c *Multiplexer) Land() error {
 	return nil
 }
 
-func (c *Multiplexer) Clockwise() error {
+func (c *Multiplexer) Clockwise(val int) error {
 	for _, sub := range c.controllers {
-		err := sub.Clockwise()
+		err := sub.Clockwise(val)
 		if err != nil {
 			return fmt.Errorf("rotate clockwise (%s): %v", c.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) CounterClockwise(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.CounterClockwise(val)
+		if err != nil {
+			return fmt.Errorf("rotate counter clockwise (%s): %v", c.Name(), err)
 		}
 	}
 	return nil

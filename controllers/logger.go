@@ -33,12 +33,17 @@ func (c *Logger) TakeOff() error {
 	return nil
 }
 
-func (c *Logger) Clockwise() error {
-	c.logger.Debug("rotate clockwise")
+func (c *Logger) Land() error {
+	c.logger.Debug("land")
 	return nil
 }
 
-func (c *Logger) Land() error {
-	c.logger.Debug("land")
+func (c *Logger) Clockwise(val int) error {
+	c.logger.Debug("rotate clockwise", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) CounterClockwise(val int) error {
+	c.logger.Debug("rotate counter clockwise", zap.Int("val", val))
 	return nil
 }

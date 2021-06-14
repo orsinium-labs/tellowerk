@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/orsinium-labs/gamepad"
 	"github.com/orsinium-labs/tellowerk/controllers"
 	"go.uber.org/zap"
 	"gobot.io/x/gobot/platforms/dji/tello"
@@ -49,25 +50,26 @@ func run(logger *zap.Logger) error {
 	defer func() {
 		err = controller.Stop()
 		if err != nil {
-			logger.Error("cannot stop controller", zap.Error(err))
+			logger.Error("stop controller", zap.Error(err))
 		}
 	}()
 
-	err = controller.TakeOff()
+	finish := make(chan struct{})
+	g, err := gamepad.NewGamepad(config.GamepadID)
 	if err != nil {
-		return fmt.Errorf("take off: %v", err)
+		return fmt.Errorf("connect gamepad: %v", err)
 	}
-	time.Sleep(4 * time.Second)
-	err = controller.Clockwise()
-	if err != nil {
-		return fmt.Errorf("clockwise: %v", err)
+	gamepad := GamePad{
+		controller: controller,
+		gamepad:    g,
+		logger:     logger,
+		finish:     finish,
 	}
-	time.Sleep(10 * time.Second)
-	err = controller.Land()
-	if err != nil {
-		return fmt.Errorf("land: %v", err)
-	}
+	gamepad.Start()
+
+	time.Sleep(time.Second)
 	logger.Info("battery", zap.Int8("value", finfo.Battery()))
+	<-finish
 
 	return nil
 }

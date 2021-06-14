@@ -19,7 +19,3 @@ func (c *Driver) Name() string {
 func (c *Driver) Stop() error {
 	return c.Driver.Halt()
 }
-
-func (c *Driver) Clockwise() error {
-	return c.Driver.Clockwise(100)
-}

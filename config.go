@@ -1,13 +1,15 @@
 package main
 
 type Config struct {
-	Port int
-	Fly  bool
+	Port      int
+	GamepadID int
+	Fly       bool
 }
 
 func DefaultConfig() Config {
 	return Config{
-		Port: 8890,
-		Fly:  false,
+		Port:      8890,
+		GamepadID: 1,
+		Fly:       true,
 	}
 }
