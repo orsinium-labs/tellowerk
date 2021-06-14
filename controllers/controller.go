@@ -9,6 +9,7 @@ type Controller interface {
 	TakeOff() error
 	Land() error
 
+	// movement
 	Clockwise(int) error
 	CounterClockwise(int) error
 	Forward(int) error
@@ -17,4 +18,9 @@ type Controller interface {
 	Right(int) error
 	Down(int) error
 	Up(int) error
+
+	LeftFlip() error
+	RightFlip() error
+	FrontFlip() error
+	BackFlip() error
 }

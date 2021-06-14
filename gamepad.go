@@ -105,5 +105,19 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		return err
 	}
 
+	// handle flips
+	if !oldS.DPadLeft() && newS.DPadLeft() {
+		err = g.controller.LeftFlip()
+	} else if !oldS.DPadRight() && newS.DPadRight() {
+		err = g.controller.RightFlip()
+	} else if !oldS.DPadUp() && newS.DPadUp() {
+		err = g.controller.FrontFlip()
+	} else if !oldS.DPadDown() && newS.DPadDown() {
+		err = g.controller.BackFlip()
+	}
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

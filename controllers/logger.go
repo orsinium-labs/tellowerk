@@ -77,3 +77,23 @@ func (c *Logger) Down(val int) error {
 	c.logger.Debug("down", zap.Int("val", val))
 	return nil
 }
+
+func (c *Logger) LeftFlip() error {
+	c.logger.Debug("left flip")
+	return nil
+}
+
+func (c *Logger) RightFlip() error {
+	c.logger.Debug("right flip")
+	return nil
+}
+
+func (c *Logger) FrontFlip() error {
+	c.logger.Debug("front flip")
+	return nil
+}
+
+func (c *Logger) BackFlip() error {
+	c.logger.Debug("back flip")
+	return nil
+}
