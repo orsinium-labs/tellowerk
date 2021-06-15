@@ -21,7 +21,7 @@ func (mplayer *MPlayer) Start() error {
 	var err error
 
 	// start mplayer subprocess
-	cmd := exec.Command("mplayer", "-fps", "25", "-")
+	cmd := exec.Command("mplayer", "-fps", "30", "-")
 	mplayer.stream, err = cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("open stdin pipe to mplayer: %v", err)
