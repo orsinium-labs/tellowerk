@@ -52,14 +52,7 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 	var err error
 
 	// handle take off and land
-	if g.info.OnGround() {
-		if !oldS.A() && newS.A() {
-			return g.controller.TakeOff()
-		}
-		if !oldS.B() && newS.B() {
-			return g.controller.ThrowTakeOff()
-		}
-	} else {
+	if g.info.Flying() {
 		if !oldS.A() && newS.A() {
 			return g.controller.Land()
 		}
@@ -71,6 +64,13 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		}
 		if oldS.B() && !newS.B() {
 			return g.controller.StopLanding()
+		}
+	} else {
+		if !oldS.A() && newS.A() {
+			return g.controller.TakeOff()
+		}
+		if !oldS.B() && newS.B() {
+			return g.controller.ThrowTakeOff()
 		}
 	}
 

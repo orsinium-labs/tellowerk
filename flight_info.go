@@ -8,15 +8,15 @@ import (
 
 type FlightInfo struct {
 	battery  int8
-	onGround bool
+	flying   bool
 	exposure int8
 	bitrate  tello.VideoBitRate
 }
 
 func NewFlightInfo() FlightInfo {
 	return FlightInfo{
-		battery:  100,
-		onGround: true,
+		battery: 100,
+		flying:  false,
 	}
 }
 
@@ -45,15 +45,15 @@ func (fi *FlightInfo) Subscribe(driver *tello.Driver) error {
 
 func (fi *FlightInfo) update(data *tello.FlightData) {
 	fi.battery = data.BatteryPercentage
-	fi.onGround = data.OnGround
+	fi.flying = data.Flying
 }
 
 func (fi FlightInfo) Battery() int8 {
 	return fi.battery
 }
 
-func (fi FlightInfo) OnGround() bool {
-	return fi.onGround
+func (fi FlightInfo) Flying() bool {
+	return fi.flying
 }
 
 func (fi FlightInfo) Exposure() int8 {
