@@ -17,7 +17,7 @@ func run(logger *zap.Logger) error {
 	config := DefaultConfig()
 	driver := tello.NewDriver(fmt.Sprintf("%d", config.Port))
 
-	finfo := NewFlightInfo()
+	finfo := NewFlightInfo(logger)
 	err = finfo.Subscribe(driver)
 	if err != nil {
 		return fmt.Errorf("subscribe to flight info: %v", err)
@@ -69,7 +69,6 @@ func run(logger *zap.Logger) error {
 	gamepad.Start()
 
 	time.Sleep(time.Second)
-	logger.Info("battery", zap.Int8("value", finfo.Battery()))
 	<-finish
 
 	return nil
