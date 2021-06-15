@@ -69,12 +69,12 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		return g.controller.StopLanding()
 	}
 
-	// handle ox rotation
+	// handle ox movement
 	if oldS.LS().X != newS.LS().X {
 		if newS.LS().X >= 0 {
-			err = g.controller.Clockwise(newS.LS().X)
+			err = g.controller.Right(newS.LS().X)
 		} else {
-			err = g.controller.CounterClockwise(-newS.LS().X)
+			err = g.controller.Left(-newS.LS().X)
 		}
 	}
 	if err != nil {
@@ -93,12 +93,12 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		return err
 	}
 
-	// handle ox movement
+	// handle ox rotation
 	if oldS.RS().X != newS.RS().X {
 		if newS.RS().X >= 0 {
-			err = g.controller.Right(newS.RS().X)
+			err = g.controller.Clockwise(newS.RS().X)
 		} else {
-			err = g.controller.Left(-newS.RS().X)
+			err = g.controller.CounterClockwise(-newS.RS().X)
 		}
 	}
 	if err != nil {
