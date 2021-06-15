@@ -30,7 +30,8 @@ type Controller interface {
 	BackFlip() error
 	Bounce() error
 
-	// speed control
+	// settings
 	SetFastMode() error
 	SetSlowMode() error
+	SetExposure(int) error
 }

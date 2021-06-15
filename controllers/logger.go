@@ -129,3 +129,8 @@ func (c *Logger) SetSlowMode() error {
 	c.logger.Debug("slow mode")
 	return nil
 }
+
+func (c *Logger) SetExposure(val int) error {
+	c.logger.Debug("set exposure", zap.Int("val", val))
+	return nil
+}

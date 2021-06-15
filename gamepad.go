@@ -137,6 +137,15 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		return err
 	}
 
+	// handle video settings
+	if !oldS.X() && newS.X() {
+		e := int(g.info.Exposure()+1) % 3
+		err = g.controller.SetExposure(e)
+		if err != nil {
+			return err
+		}
+	}
+
 	// handle speed settings
 	if oldS.LT() != 100 && newS.LT() == 100 {
 		err = g.controller.SetFastMode()

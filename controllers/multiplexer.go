@@ -243,3 +243,13 @@ func (c *Multiplexer) SetSlowMode() error {
 	}
 	return nil
 }
+
+func (c *Multiplexer) SetExposure(val int) error {
+	for _, sub := range c.controllers {
+		err := sub.SetExposure(val)
+		if err != nil {
+			return fmt.Errorf("set exposure (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
