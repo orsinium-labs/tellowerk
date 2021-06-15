@@ -10,6 +10,7 @@ import (
 
 type GamePad struct {
 	controller controllers.Controller
+	info       *FlightInfo
 	gamepad    *gamepad.GamePad
 	logger     *zap.Logger
 	finish     chan<- struct{}
@@ -50,23 +51,26 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 	var err error
 
 	// handle take off and land
-	if !oldS.A() && newS.A() {
-		return g.controller.TakeOff()
-	}
-	if !oldS.X() && newS.X() {
-		return g.controller.ThrowTakeOff()
-	}
-	if !oldS.B() && newS.B() {
-		return g.controller.Land()
-	}
-	if oldS.B() && !newS.B() {
-		return g.controller.StopLanding()
-	}
-	if !oldS.Y() && newS.Y() {
-		return g.controller.PalmLand()
-	}
-	if oldS.Y() && !newS.Y() {
-		return g.controller.StopLanding()
+	if g.info.OnGround() {
+		if !oldS.A() && newS.A() {
+			return g.controller.TakeOff()
+		}
+		if !oldS.B() && newS.B() {
+			return g.controller.ThrowTakeOff()
+		}
+	} else {
+		if !oldS.A() && newS.A() {
+			return g.controller.Land()
+		}
+		if oldS.A() && !newS.A() {
+			return g.controller.StopLanding()
+		}
+		if !oldS.B() && newS.B() {
+			return g.controller.PalmLand()
+		}
+		if oldS.B() && !newS.B() {
+			return g.controller.StopLanding()
+		}
 	}
 
 	// handle ox movement
