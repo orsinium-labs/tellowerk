@@ -1,6 +1,10 @@
 package controllers
 
-import "fmt"
+import (
+	"fmt"
+
+	"gobot.io/x/gobot/platforms/dji/tello"
+)
 
 type Multiplexer struct {
 	controllers []Controller
@@ -249,6 +253,16 @@ func (c *Multiplexer) SetExposure(val int) error {
 		err := sub.SetExposure(val)
 		if err != nil {
 			return fmt.Errorf("set exposure (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
+func (c *Multiplexer) SetVideoBitRate(val tello.VideoBitRate) error {
+	for _, sub := range c.controllers {
+		err := sub.SetVideoBitRate(val)
+		if err != nil {
+			return fmt.Errorf("set video bitrate (%s): %v", sub.Name(), err)
 		}
 	}
 	return nil

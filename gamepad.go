@@ -6,6 +6,7 @@ import (
 	"github.com/orsinium-labs/gamepad"
 	"github.com/orsinium-labs/tellowerk/controllers"
 	"go.uber.org/zap"
+	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
 type GamePad struct {
@@ -141,6 +142,13 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 	if !oldS.X() && newS.X() {
 		e := int(g.info.Exposure()+1) % 3
 		err = g.controller.SetExposure(e)
+		if err != nil {
+			return err
+		}
+	}
+	if !oldS.Y() && newS.Y() {
+		r := tello.VideoBitRate(int(g.info.BitRate()+1) % 6)
+		err = g.controller.SetVideoBitRate(r)
 		if err != nil {
 			return err
 		}

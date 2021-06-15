@@ -19,3 +19,7 @@ func (c *Driver) Name() string {
 func (c *Driver) Stop() error {
 	return c.Driver.Halt()
 }
+
+func (c *Driver) SetVideoBitRate(val tello.VideoBitRate) error {
+	return c.Driver.SetVideoEncoderRate(val)
+}

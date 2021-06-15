@@ -1,5 +1,7 @@
 package controllers
 
+import "gobot.io/x/gobot/platforms/dji/tello"
+
 type Controller interface {
 	Name() string
 
@@ -34,4 +36,5 @@ type Controller interface {
 	SetFastMode() error
 	SetSlowMode() error
 	SetExposure(int) error
+	SetVideoBitRate(tello.VideoBitRate) error
 }

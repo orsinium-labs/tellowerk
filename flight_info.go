@@ -10,6 +10,7 @@ type FlightInfo struct {
 	battery  int8
 	onGround bool
 	exposure int8
+	bitrate  tello.VideoBitRate
 }
 
 func NewFlightInfo() FlightInfo {
@@ -28,11 +29,16 @@ func (fi *FlightInfo) Subscribe(driver *tello.Driver) error {
 		return fmt.Errorf("subscribe to flight data: %v", err)
 	}
 	err = driver.On(tello.SetExposureEvent, func(data interface{}) {
-		fmt.Println(data.([]byte), int8(data.([]byte)[0]))
 		fi.exposure = int8(data.([]byte)[0])
 	})
 	if err != nil {
 		return fmt.Errorf("subscribe to set exposure: %v", err)
+	}
+	err = driver.On(tello.SetVideoEncoderRateEvent, func(data interface{}) {
+		fi.bitrate = tello.VideoBitRate(data.([]byte)[0])
+	})
+	if err != nil {
+		return fmt.Errorf("subscribe to set bitrate: %v", err)
 	}
 	return nil
 }
@@ -52,4 +58,8 @@ func (fi FlightInfo) OnGround() bool {
 
 func (fi FlightInfo) Exposure() int8 {
 	return fi.exposure
+}
+
+func (fi FlightInfo) BitRate() tello.VideoBitRate {
+	return fi.bitrate
 }

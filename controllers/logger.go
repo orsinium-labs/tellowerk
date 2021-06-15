@@ -1,6 +1,9 @@
 package controllers
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+	"gobot.io/x/gobot/platforms/dji/tello"
+)
 
 type Logger struct {
 	logger *zap.Logger
@@ -132,5 +135,10 @@ func (c *Logger) SetSlowMode() error {
 
 func (c *Logger) SetExposure(val int) error {
 	c.logger.Debug("set exposure", zap.Int("val", val))
+	return nil
+}
+
+func (c *Logger) SetVideoBitRate(val tello.VideoBitRate) error {
+	c.logger.Debug("set video bitrate", zap.Int("val", int(val)))
 	return nil
 }
