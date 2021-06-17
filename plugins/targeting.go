@@ -17,13 +17,17 @@ func (t *Targeting) Target(targets []image.Rectangle) error {
 
 	// rotate ox
 	if target.Min.X > icenter.X {
-		err = t.c.Clockwise(10)
+		err = t.c.Clockwise(50)
 		if err != nil {
 			return err
 		}
-	}
-	if target.Max.X < icenter.X {
-		err = t.c.CounterClockwise(10)
+	} else if target.Max.X < icenter.X {
+		err = t.c.CounterClockwise(50)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = t.c.Clockwise(0)
 		if err != nil {
 			return err
 		}
@@ -31,13 +35,17 @@ func (t *Targeting) Target(targets []image.Rectangle) error {
 
 	// position oy
 	if target.Min.Y > icenter.Y {
-		err = t.c.Up(10)
+		err = t.c.Down(20)
 		if err != nil {
 			return err
 		}
-	}
-	if target.Max.Y < icenter.Y {
-		err = t.c.Down(10)
+	} else if target.Max.Y < icenter.Y {
+		err = t.c.Up(20)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = t.c.Up(0)
 		if err != nil {
 			return err
 		}

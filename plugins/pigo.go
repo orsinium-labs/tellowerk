@@ -41,7 +41,7 @@ func (PiGo) Connect(pl *Plugins) {
 
 func (pg *PiGo) Detect(img image.Image) []image.Rectangle {
 	now := time.Now()
-	if now.Sub(pg.last) < 2*time.Second {
+	if now.Sub(pg.last) < 400*time.Millisecond {
 		return nil
 	}
 	pg.last = now
