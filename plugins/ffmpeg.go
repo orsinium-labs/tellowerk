@@ -167,22 +167,26 @@ func (ff *FFMpeg) worker() {
 		if ff.pigo != nil {
 			dets := ff.pigo.Detect(&img)
 			if dets != nil {
-				if len(dets) == 0 {
+				if len(dets) != 0 {
 					ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
 				}
 				ff.dets = dets
 			}
 		}
 		// draw rectangles for detected faces
-		c := color.Black
+		c := color.RGBA{255, 0, 0, 255}
 		for _, det := range ff.dets {
 			for x := det.Min.X; x < det.Max.X; x++ {
 				img.Set(x, det.Min.Y, c)
+				img.Set(x, det.Min.Y+1, c)
 				img.Set(x, det.Max.Y, c)
+				img.Set(x, det.Max.Y+1, c)
 			}
 			for y := det.Min.Y; y < det.Max.Y; y++ {
 				img.Set(det.Min.X, y, c)
-				img.Set(det.Max.Y, y, c)
+				img.Set(det.Min.X+1, y, c)
+				img.Set(det.Max.X, y, c)
+				img.Set(det.Max.X+1, y, c)
 			}
 		}
 

@@ -55,9 +55,9 @@ func (pg *PiGo) Detect(img image.Image) []image.Rectangle {
 
 		ImageParams: pigo.ImageParams{
 			Pixels: pixels,
-			Rows:   480,
-			Cols:   360,
-			Dim:    360,
+			Rows:   360,
+			Cols:   480,
+			Dim:    480,
 		},
 	}
 	dets := pg.classifier.RunCascade(cParams, 0)
@@ -65,9 +65,10 @@ func (pg *PiGo) Detect(img image.Image) []image.Rectangle {
 
 	res := make([]image.Rectangle, len(dets))
 	for i, det := range dets {
+		rad := det.Scale / 2
 		res[i] = image.Rect(
-			det.Col, det.Row,
-			det.Col+det.Scale, det.Row+det.Scale,
+			det.Col-rad, det.Row-rad,
+			det.Col+rad, det.Row+rad,
 		)
 	}
 	return res
