@@ -37,6 +37,7 @@ func run(logger *zap.Logger) error {
 		GamePad:    plugins.NewGamePad(g),
 		Video:      plugins.NewVideo(driver),
 		MPlayer:    plugins.NewMPlayer(driver),
+		FFMpeg:     plugins.NewFFMpeg(driver),
 	}
 
 	// start controller

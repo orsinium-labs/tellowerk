@@ -21,6 +21,7 @@ type Plugins struct {
 	GamePad    *GamePad
 	Video      *Video
 	MPlayer    *MPlayer
+	FFMpeg     *FFMpeg
 }
 
 func (plugins *Plugins) All() []Plugin {
@@ -28,7 +29,8 @@ func (plugins *Plugins) All() []Plugin {
 		plugins.FlightInfo,
 		plugins.GamePad,
 		plugins.Video,
-		plugins.MPlayer,
+		// plugins.MPlayer,
+		plugins.FFMpeg,
 	}
 }
 
