@@ -55,9 +55,9 @@ func (pg *PiGo) Detect(img image.Image) []image.Rectangle {
 
 		ImageParams: pigo.ImageParams{
 			Pixels: pixels,
-			Rows:   360,
-			Cols:   480,
-			Dim:    480,
+			Rows:   frameY,
+			Cols:   frameX,
+			Dim:    frameX,
 		},
 	}
 	dets := pg.classifier.RunCascade(cParams, 0)

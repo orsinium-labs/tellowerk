@@ -9,6 +9,11 @@ import (
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
+const (
+	frameX = 480
+	frameY = 360
+)
+
 type Video struct {
 	driver *tello.Driver
 	logger *zap.Logger

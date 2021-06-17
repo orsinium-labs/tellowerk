@@ -12,49 +12,11 @@ import (
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
-type RGB struct {
-	Pix    []uint8
-	Stride int
-	Rect   image.Rectangle
-}
-
-func (p *RGB) ColorModel() color.Model {
-	return color.RGBAModel
-}
-
-func (p *RGB) Bounds() image.Rectangle {
-	return p.Rect
-}
-
-func (p *RGB) At(x, y int) color.Color {
-	if !(image.Point{x, y}.In(p.Rect)) {
-		return color.RGBA{}
-	}
-	i := p.PixOffset(x, y)
-	s := p.Pix[i : i+3 : i+3]
-	return color.RGBA{s[2], s[1], s[0], 0}
-}
-
-func (p *RGB) PixOffset(x, y int) int {
-	return (y-p.Rect.Min.Y)*p.Stride + (x-p.Rect.Min.X)*3
-}
-
-func (p *RGB) Set(x, y int, c color.Color) {
-	if !(image.Point{x, y}.In(p.Rect)) {
-		return
-	}
-	i := p.PixOffset(x, y)
-	c1 := color.RGBAModel.Convert(c).(color.RGBA)
-	s := p.Pix[i : i+3 : i+3]
-	s[0] = c1.B
-	s[1] = c1.G
-	s[2] = c1.R
-}
-
 type FFMpeg struct {
-	logger *zap.Logger
-	driver *tello.Driver
-	pigo   *PiGo
+	logger    *zap.Logger
+	driver    *tello.Driver
+	pigo      *PiGo
+	targeting *Targeting
 
 	in   io.WriteCloser
 	out  io.ReadCloser
@@ -69,6 +31,7 @@ func NewFFMpeg(driver *tello.Driver) *FFMpeg {
 func (ff *FFMpeg) Connect(pl *Plugins) {
 	ff.pigo = pl.PiGo
 	ff.logger = pl.Logger
+	ff.targeting = &Targeting{c: pl.Controller}
 }
 
 func (ff *FFMpeg) Start() error {
@@ -78,7 +41,7 @@ func (ff *FFMpeg) Start() error {
 		"-hwaccel_device", "opencl",
 		"-i", "pipe:0",
 		"-pix_fmt", "bgr24",
-		"-s", "480x360",
+		"-s", fmt.Sprintf("%dx%d", frameX, frameY),
 		"-f", "rawvideo",
 		"pipe:1",
 	)
@@ -97,8 +60,8 @@ func (ff *FFMpeg) Start() error {
 	}
 
 	c := imgshow.NewConfig()
-	c.Width = 480
-	c.Height = 360
+	c.Width = frameX
+	c.Height = frameY
 	c.Title = "tellowerk"
 	ff.win = c.Window()
 	err = ff.win.Create()
@@ -151,7 +114,7 @@ func (ff *FFMpeg) worker() {
 			return
 		}
 		// read raw frame
-		buf := make([]byte, 480*360*3)
+		buf := make([]byte, frameX*frameY*3)
 		_, err = io.ReadFull(ff.out, buf)
 		if err != nil {
 			ff.logger.Error("cannot read ffmpeg stdout", zap.Error(err))
@@ -159,8 +122,8 @@ func (ff *FFMpeg) worker() {
 		}
 		img := RGB{
 			Pix:    []uint8(buf),
-			Stride: 480 * 3,
-			Rect:   image.Rect(0, 0, 480, 360),
+			Stride: frameX * 3,
+			Rect:   image.Rect(0, 0, frameX, frameY),
 		}
 
 		// detect faces
@@ -169,6 +132,10 @@ func (ff *FFMpeg) worker() {
 			if dets != nil {
 				if len(dets) != 0 {
 					ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
+					err = ff.targeting.Target(dets)
+					if err != nil {
+						ff.logger.Error("cannot target to face", zap.Error(err))
+					}
 				}
 				ff.dets = dets
 			}
