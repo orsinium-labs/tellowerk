@@ -8,6 +8,7 @@ replace (
 )
 
 require (
+	github.com/esimov/pigo v1.4.4
 	github.com/orsinium-labs/gamepad v1.0.4
 	github.com/orsinium-labs/imgshow v1.1.0
 	go.uber.org/atomic v1.8.0 // indirect

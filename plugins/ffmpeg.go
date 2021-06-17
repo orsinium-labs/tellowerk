@@ -30,18 +30,36 @@ func (p *RGB) At(x, y int) color.Color {
 	if !(image.Point{x, y}.In(p.Rect)) {
 		return color.RGBA{}
 	}
-	i := (y-p.Rect.Min.Y)*p.Stride + (x-p.Rect.Min.X)*3
+	i := p.PixOffset(x, y)
 	s := p.Pix[i : i+3 : i+3]
 	return color.RGBA{s[2], s[1], s[0], 0}
+}
+
+func (p *RGB) PixOffset(x, y int) int {
+	return (y-p.Rect.Min.Y)*p.Stride + (x-p.Rect.Min.X)*3
+}
+
+func (p *RGB) Set(x, y int, c color.Color) {
+	if !(image.Point{x, y}.In(p.Rect)) {
+		return
+	}
+	i := p.PixOffset(x, y)
+	c1 := color.RGBAModel.Convert(c).(color.RGBA)
+	s := p.Pix[i : i+3 : i+3]
+	s[0] = c1.B
+	s[1] = c1.G
+	s[2] = c1.R
 }
 
 type FFMpeg struct {
 	logger *zap.Logger
 	driver *tello.Driver
+	pigo   *PiGo
 
-	in  io.WriteCloser
-	out io.ReadCloser
-	win *imgshow.Window
+	in   io.WriteCloser
+	out  io.ReadCloser
+	win  *imgshow.Window
+	dets []image.Rectangle
 }
 
 func NewFFMpeg(driver *tello.Driver) *FFMpeg {
@@ -49,6 +67,7 @@ func NewFFMpeg(driver *tello.Driver) *FFMpeg {
 }
 
 func (ff *FFMpeg) Connect(pl *Plugins) {
+	ff.pigo = pl.PiGo
 	ff.logger = pl.Logger
 }
 
@@ -108,6 +127,7 @@ func (ff *FFMpeg) handle(data interface{}) {
 		return
 	}
 }
+
 func (ff *FFMpeg) Stop() error {
 	var err error
 	ff.win.Destroy()
@@ -142,6 +162,30 @@ func (ff *FFMpeg) worker() {
 			Stride: 480 * 3,
 			Rect:   image.Rect(0, 0, 480, 360),
 		}
+
+		// detect faces
+		if ff.pigo != nil {
+			dets := ff.pigo.Detect(&img)
+			if dets != nil {
+				if len(dets) == 0 {
+					ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
+				}
+				ff.dets = dets
+			}
+		}
+		// draw rectangles for detected faces
+		c := color.Black
+		for _, det := range ff.dets {
+			for x := det.Min.X; x < det.Max.X; x++ {
+				img.Set(x, det.Min.Y, c)
+				img.Set(x, det.Max.Y, c)
+			}
+			for y := det.Min.Y; y < det.Max.Y; y++ {
+				img.Set(det.Min.X, y, c)
+				img.Set(det.Max.Y, y, c)
+			}
+		}
+
 		err = ff.win.Draw(&img)
 		if err != nil {
 			ff.logger.Error("cannot draw frame: %v", zap.Error(err))

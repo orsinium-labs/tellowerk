@@ -38,6 +38,7 @@ func run(logger *zap.Logger) error {
 		Video:      plugins.NewVideo(driver),
 		MPlayer:    plugins.NewMPlayer(driver),
 		FFMpeg:     plugins.NewFFMpeg(driver),
+		PiGo:       plugins.NewPiGo(),
 	}
 
 	// start controller

@@ -22,6 +22,7 @@ type Plugins struct {
 	Video      *Video
 	MPlayer    *MPlayer
 	FFMpeg     *FFMpeg
+	PiGo       *PiGo
 }
 
 func (plugins *Plugins) All() []Plugin {
@@ -31,6 +32,7 @@ func (plugins *Plugins) All() []Plugin {
 		plugins.Video,
 		// plugins.MPlayer,
 		plugins.FFMpeg,
+		plugins.PiGo,
 	}
 }
 
