@@ -1,13 +1,11 @@
-package main
+package plugins
 
 import (
 	"fmt"
 	"io"
 	"os/exec"
-	"time"
 
 	"go.uber.org/zap"
-	"gobot.io/x/gobot"
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
@@ -15,6 +13,14 @@ type MPlayer struct {
 	driver *tello.Driver
 	logger *zap.Logger
 	stream io.WriteCloser
+}
+
+func NewMPlayer(driver *tello.Driver) *MPlayer {
+	return &MPlayer{driver: driver}
+}
+
+func (mplayer *MPlayer) Connect(pl *Plugins) {
+	mplayer.logger = pl.Logger
 }
 
 func (mplayer *MPlayer) Start() error {
@@ -32,10 +38,6 @@ func (mplayer *MPlayer) Start() error {
 	}
 
 	// subscribe to events
-	err = mplayer.driver.On(tello.ConnectedEvent, mplayer.configure)
-	if err != nil {
-		return fmt.Errorf("subscribe to connected: %v", err)
-	}
 	err = mplayer.driver.On(tello.VideoFrameEvent, mplayer.handle)
 	if err != nil {
 		return fmt.Errorf("subscribe to videoframes: %v", err)
@@ -52,32 +54,6 @@ func (mplayer *MPlayer) Stop() error {
 		mplayer.stream = nil
 	}
 	return nil
-}
-
-func (mplayer *MPlayer) configure(data interface{}) {
-	var err error
-	mplayer.logger.Debug("connected")
-	err = mplayer.driver.StartVideo()
-	if err != nil {
-		mplayer.logger.Error("start video", zap.Error(err))
-		return
-	}
-	err = mplayer.driver.SetVideoEncoderRate(tello.VideoBitRate1M)
-	if err != nil {
-		mplayer.logger.Error("set encoder rate", zap.Error(err))
-		return
-	}
-	err = mplayer.driver.SetExposure(0)
-	if err != nil {
-		mplayer.logger.Error("set exposure", zap.Error(err))
-		return
-	}
-	gobot.Every(1*time.Second, func() {
-		err = mplayer.driver.StartVideo()
-		if err != nil {
-			mplayer.logger.Error("restart video", zap.Error(err))
-		}
-	})
 }
 
 func (mplayer *MPlayer) handle(data interface{}) {

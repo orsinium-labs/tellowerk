@@ -1,4 +1,4 @@
-package main
+package plugins
 
 import (
 	"time"
@@ -12,13 +12,36 @@ import (
 type GamePad struct {
 	controller controllers.Controller
 	info       *FlightInfo
-	gamepad    *gamepad.GamePad
 	logger     *zap.Logger
-	finish     chan<- struct{}
+
+	gamepad *gamepad.GamePad
+	finish  chan struct{}
 }
 
-func (g *GamePad) Start() {
+func NewGamePad(g *gamepad.GamePad) *GamePad {
+	return &GamePad{
+		gamepad: g,
+		finish:  make(chan struct{}),
+	}
+}
+
+func (g *GamePad) Connect(pl *Plugins) {
+	g.controller = pl.Controller
+	g.info = pl.FlightInfo
+	g.logger = pl.Logger
+}
+
+func (g *GamePad) Start() error {
 	go g.worker()
+	return nil
+}
+
+func (GamePad) Stop() error {
+	return nil
+}
+
+func (g *GamePad) Wait() {
+	<-g.finish
 }
 
 func (g *GamePad) worker() {

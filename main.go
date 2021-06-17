@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/orsinium-labs/gamepad"
 	"github.com/orsinium-labs/tellowerk/controllers"
+	"github.com/orsinium-labs/tellowerk/plugins"
 	"go.uber.org/zap"
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
@@ -17,32 +17,29 @@ func run(logger *zap.Logger) error {
 	config := DefaultConfig()
 	driver := tello.NewDriver(fmt.Sprintf("%d", config.Port))
 
-	finfo := NewFlightInfo(logger)
-	err = finfo.Subscribe(driver)
+	g, err := gamepad.NewGamepad(config.GamepadID)
 	if err != nil {
-		return fmt.Errorf("subscribe to flight info: %v", err)
+		return fmt.Errorf("connect gamepad: %v", err)
 	}
 
-	mplayer := MPlayer{
-		driver: driver,
-		logger: logger,
-	}
-	err = mplayer.Start()
-	if err != nil {
-		return fmt.Errorf("start video: %v", err)
-	}
-	defer func() {
-		err = mplayer.Stop()
-		if err != nil {
-			logger.Error("cannot stop video", zap.Error(err))
-		}
-	}()
-
+	// init controller
 	controller := controllers.NewMultiplexer()
 	controller.Add(controllers.NewLogger(logger))
 	if config.Fly {
 		controller.Add(controllers.NewDriver(driver))
 	}
+
+	// init plugins
+	pl := plugins.Plugins{
+		Controller: controller,
+		Logger:     logger,
+		FlightInfo: plugins.NewFlightInfo(driver),
+		GamePad:    plugins.NewGamePad(g),
+		Video:      plugins.NewVideo(driver),
+		MPlayer:    plugins.NewMPlayer(driver),
+	}
+
+	// start controller
 	err = controller.Start()
 	if err != nil {
 		return fmt.Errorf("start controller: %v", err)
@@ -54,22 +51,11 @@ func run(logger *zap.Logger) error {
 		}
 	}()
 
-	finish := make(chan struct{})
-	g, err := gamepad.NewGamepad(config.GamepadID)
+	// run plugins
+	err = pl.Run()
 	if err != nil {
-		return fmt.Errorf("connect gamepad: %v", err)
+		return fmt.Errorf("run plugins: %v", err)
 	}
-	gamepad := GamePad{
-		controller: controller,
-		info:       &finfo,
-		gamepad:    g,
-		logger:     logger,
-		finish:     finish,
-	}
-	gamepad.Start()
-
-	time.Sleep(time.Second)
-	<-finish
 
 	return nil
 }
