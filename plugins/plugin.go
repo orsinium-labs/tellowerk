@@ -30,7 +30,7 @@ func (plugins *Plugins) All() []Plugin {
 		plugins.FlightInfo,
 		plugins.GamePad,
 		plugins.Video,
-		// plugins.MPlayer,
+		plugins.MPlayer,
 		plugins.FFMpeg,
 		plugins.PiGo,
 	}
@@ -38,10 +38,16 @@ func (plugins *Plugins) All() []Plugin {
 
 func (plugins *Plugins) Run() error {
 	for _, pl := range plugins.All() {
+		if pl == nil {
+			continue
+		}
 		pl.Connect(plugins)
 	}
 
 	for _, pl := range plugins.All() {
+		if pl == nil {
+			continue
+		}
 		err := pl.Start()
 		if err != nil {
 			return fmt.Errorf("start plugin: %v", err)

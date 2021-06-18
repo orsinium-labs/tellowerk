@@ -132,14 +132,15 @@ func (ff *FFMpeg) worker() {
 			if dets != nil {
 				if len(dets) != 0 {
 					ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
-					err = ff.targeting.Target(dets)
-					if err != nil {
-						ff.logger.Error("cannot target to face", zap.Error(err))
-					}
+				}
+				err = ff.targeting.Target(dets)
+				if err != nil {
+					ff.logger.Error("cannot target to face", zap.Error(err))
 				}
 				ff.dets = dets
 			}
 		}
+
 		// draw rectangles for detected faces
 		c := color.RGBA{255, 0, 0, 255}
 		for _, det := range ff.dets {

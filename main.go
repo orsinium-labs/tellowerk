@@ -14,7 +14,7 @@ import (
 func run(logger *zap.Logger) error {
 	var err error
 
-	config := DefaultConfig()
+	config := NewConfig()
 	driver := tello.NewDriver(fmt.Sprintf("%d", config.Port))
 
 	g, err := gamepad.NewGamepad(config.GamepadID)
@@ -25,7 +25,7 @@ func run(logger *zap.Logger) error {
 	// init controller
 	controller := controllers.NewMultiplexer()
 	controller.Add(controllers.NewLogger(logger))
-	if config.Fly {
+	if config.Plugins.Driver {
 		controller.Add(controllers.NewDriver(driver))
 	}
 
@@ -33,12 +33,24 @@ func run(logger *zap.Logger) error {
 	pl := plugins.Plugins{
 		Controller: controller,
 		Logger:     logger,
-		FlightInfo: plugins.NewFlightInfo(driver),
-		GamePad:    plugins.NewGamePad(g),
-		Video:      plugins.NewVideo(driver),
-		MPlayer:    plugins.NewMPlayer(driver),
-		FFMpeg:     plugins.NewFFMpeg(driver),
-		PiGo:       plugins.NewPiGo(),
+	}
+	if config.Plugins.FFMpeg {
+		pl.FFMpeg = plugins.NewFFMpeg(driver)
+	}
+	if config.Plugins.FlightInfo {
+		pl.FlightInfo = plugins.NewFlightInfo(driver)
+	}
+	if config.Plugins.GamePad {
+		pl.GamePad = plugins.NewGamePad(g)
+	}
+	if config.Plugins.Video {
+		pl.Video = plugins.NewVideo(driver)
+	}
+	if config.Plugins.MPlayer {
+		pl.MPlayer = plugins.NewMPlayer(driver)
+	}
+	if config.Plugins.PiGo {
+		pl.PiGo = plugins.NewPiGo()
 	}
 
 	// start controller
