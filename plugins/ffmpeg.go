@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/jpeg"
 	"io"
+	"os"
 	"os/exec"
+	"time"
 
 	"github.com/orsinium-labs/imgshow"
 	"go.uber.org/zap"
@@ -22,6 +25,9 @@ type FFMpeg struct {
 	out  io.ReadCloser
 	win  *imgshow.Window
 	dets []image.Rectangle
+
+	Show bool // if the video should be rendered using imgshow
+	Shot bool // if the next frame should be saved as an image
 }
 
 func NewFFMpeg(driver *tello.Driver) *FFMpeg {
@@ -59,16 +65,18 @@ func (ff *FFMpeg) Start() error {
 		return fmt.Errorf("run ffmpeg: %v", err)
 	}
 
-	c := imgshow.NewConfig()
-	c.Width = frameX
-	c.Height = frameY
-	c.Title = "tellowerk"
-	ff.win = c.Window()
-	err = ff.win.Create()
-	if err != nil {
-		return fmt.Errorf("create window: %v", err)
+	if ff.Show {
+		c := imgshow.NewConfig()
+		c.Width = frameX
+		c.Height = frameY
+		c.Title = "tellowerk"
+		ff.win = c.Window()
+		err = ff.win.Create()
+		if err != nil {
+			return fmt.Errorf("create window: %v", err)
+		}
+		go ff.win.Render()
 	}
-	go ff.win.Render()
 
 	go ff.worker()
 	err = ff.driver.On(tello.VideoFrameEvent, ff.handle)
@@ -93,7 +101,9 @@ func (ff *FFMpeg) handle(data interface{}) {
 
 func (ff *FFMpeg) Stop() error {
 	var err error
-	ff.win.Destroy()
+	if ff.win != nil {
+		ff.win.Destroy()
+	}
 	err = ff.in.Close()
 	if err != nil {
 		return fmt.Errorf("close ffmpeg stdin: %v", err)
@@ -108,60 +118,85 @@ func (ff *FFMpeg) Stop() error {
 }
 
 func (ff *FFMpeg) worker() {
-	var err error
 	for {
 		if ff.in == nil {
 			return
 		}
-		// read raw frame
-		buf := make([]byte, frameX*frameY*3)
-		_, err = io.ReadFull(ff.out, buf)
+		err := ff.handleFrame()
 		if err != nil {
-			ff.logger.Error("cannot read ffmpeg stdout", zap.Error(err))
-			continue
-		}
-		img := RGB{
-			Pix:    []uint8(buf),
-			Stride: frameX * 3,
-			Rect:   image.Rect(0, 0, frameX, frameY),
-		}
-
-		// detect faces
-		if ff.pigo != nil {
-			dets := ff.pigo.Detect(&img)
-			if dets != nil {
-				if len(dets) != 0 {
-					ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
-				}
-				err = ff.targeting.Target(dets)
-				if err != nil {
-					ff.logger.Error("cannot target to face", zap.Error(err))
-				}
-				ff.dets = dets
-			}
-		}
-
-		// draw rectangles for detected faces
-		c := color.RGBA{255, 0, 0, 255}
-		for _, det := range ff.dets {
-			for x := det.Min.X; x < det.Max.X; x++ {
-				img.Set(x, det.Min.Y, c)
-				img.Set(x, det.Min.Y+1, c)
-				img.Set(x, det.Max.Y, c)
-				img.Set(x, det.Max.Y+1, c)
-			}
-			for y := det.Min.Y; y < det.Max.Y; y++ {
-				img.Set(det.Min.X, y, c)
-				img.Set(det.Min.X+1, y, c)
-				img.Set(det.Max.X, y, c)
-				img.Set(det.Max.X+1, y, c)
-			}
-		}
-
-		err = ff.win.Draw(&img)
-		if err != nil {
-			ff.logger.Error("cannot draw frame: %v", zap.Error(err))
+			ff.logger.Error("cannot process video frame", zap.Error(err))
 			continue
 		}
 	}
+}
+
+func (ff *FFMpeg) handleFrame() error {
+	var err error
+	// read raw frame
+	buf := make([]byte, frameX*frameY*3)
+	_, err = io.ReadFull(ff.out, buf)
+	if err != nil {
+		return fmt.Errorf("read ffmpeg stdout: %v", err)
+	}
+	img := RGB{
+		Pix:    []uint8(buf),
+		Stride: frameX * 3,
+		Rect:   image.Rect(0, 0, frameX, frameY),
+	}
+
+	// detect faces
+	if ff.pigo != nil {
+		dets := ff.pigo.Detect(&img)
+		if dets != nil {
+			if len(dets) != 0 {
+				ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
+			}
+			err = ff.targeting.Target(dets)
+			if err != nil {
+				return fmt.Errorf("target to face: %v", err)
+			}
+			ff.dets = dets
+		}
+	}
+
+	// draw rectangles for detected faces
+	c := color.RGBA{255, 0, 0, 255}
+	for _, det := range ff.dets {
+		for x := det.Min.X; x < det.Max.X; x++ {
+			img.Set(x, det.Min.Y, c)
+			img.Set(x, det.Min.Y+1, c)
+			img.Set(x, det.Max.Y, c)
+			img.Set(x, det.Max.Y+1, c)
+		}
+		for y := det.Min.Y; y < det.Max.Y; y++ {
+			img.Set(det.Min.X, y, c)
+			img.Set(det.Min.X+1, y, c)
+			img.Set(det.Max.X, y, c)
+			img.Set(det.Max.X+1, y, c)
+		}
+	}
+
+	// take a photo
+	if ff.Shot {
+		ff.Shot = false
+		fname := fmt.Sprintf("tello-%s.jpg", time.Now().Format("2006-01-02_15-04-05"))
+		stream, err := os.Create(fname)
+		if err != nil {
+			return fmt.Errorf("open file: %v", zap.Error(err))
+		}
+		defer stream.Close()
+		err = jpeg.Encode(stream, &img, nil)
+		if err != nil {
+			return fmt.Errorf("encode jpeg: %v", zap.Error(err))
+		}
+	}
+
+	// render the frame on the screen
+	if ff.win != nil {
+		err = ff.win.Draw(&img)
+		if err != nil {
+			return fmt.Errorf("draw frame: %v", zap.Error(err))
+		}
+	}
+	return nil
 }

@@ -12,6 +12,7 @@ import (
 type GamePad struct {
 	controller controllers.Controller
 	info       *FlightInfo
+	ffmpeg     *FFMpeg
 	logger     *zap.Logger
 
 	gamepad *gamepad.GamePad
@@ -29,6 +30,7 @@ func (g *GamePad) Connect(pl *Plugins) {
 	g.controller = pl.Controller
 	g.info = pl.FlightInfo
 	g.logger = pl.Logger
+	g.ffmpeg = pl.FFMpeg
 }
 
 func (g *GamePad) Start() error {
@@ -175,6 +177,10 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		if err != nil {
 			return err
 		}
+	}
+	// take a photo
+	if !oldS.Guide() && newS.Guide() {
+		g.ffmpeg.Shot = true
 	}
 
 	// handle speed settings

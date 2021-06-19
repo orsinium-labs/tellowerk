@@ -36,6 +36,7 @@ func run(logger *zap.Logger) error {
 	}
 	if config.Plugins.FFMpeg {
 		pl.FFMpeg = plugins.NewFFMpeg(driver)
+		pl.FFMpeg.Show = config.Plugins.ImgShow
 	}
 	if config.Plugins.FlightInfo {
 		pl.FlightInfo = plugins.NewFlightInfo(driver)
