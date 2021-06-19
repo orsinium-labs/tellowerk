@@ -11,7 +11,15 @@ type Targeting struct {
 }
 
 func (t *Targeting) Target(targets []image.Rectangle) error {
-	var err error
+	err := t.c.Hover()
+	if err != nil {
+		return err
+	}
+
+	if len(targets) == 0 {
+		return nil
+	}
+
 	target := t.best(targets)
 	icenter := image.Point{frameX / 2, frameY / 2}
 
@@ -26,11 +34,6 @@ func (t *Targeting) Target(targets []image.Rectangle) error {
 		if err != nil {
 			return err
 		}
-	} else {
-		err = t.c.Clockwise(0)
-		if err != nil {
-			return err
-		}
 	}
 
 	// position oy
@@ -41,11 +44,6 @@ func (t *Targeting) Target(targets []image.Rectangle) error {
 		}
 	} else if target.Max.Y < icenter.Y {
 		err = t.c.Up(20)
-		if err != nil {
-			return err
-		}
-	} else {
-		err = t.c.Up(0)
 		if err != nil {
 			return err
 		}

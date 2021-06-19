@@ -20,6 +20,11 @@ func (c *Driver) Stop() error {
 	return c.Driver.Halt()
 }
 
+func (c *Driver) Hover() error {
+	c.Driver.Hover()
+	return nil
+}
+
 func (c *Driver) SetVideoBitRate(val tello.VideoBitRate) error {
 	return c.Driver.SetVideoEncoderRate(val)
 }

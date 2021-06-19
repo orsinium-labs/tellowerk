@@ -98,6 +98,11 @@ func (c *Logger) Down(val int) error {
 	return nil
 }
 
+func (c *Logger) Hover() error {
+	// c.logger.Debug("hover")
+	return nil
+}
+
 func (c *Logger) LeftFlip() error {
 	c.logger.Debug("left flip")
 	return nil

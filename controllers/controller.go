@@ -24,6 +24,7 @@ type Controller interface {
 	Right(int) error
 	Down(int) error
 	Up(int) error
+	Hover() error
 
 	// tricks
 	LeftFlip() error

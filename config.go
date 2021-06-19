@@ -31,7 +31,7 @@ func NewConfig() Config {
 			FlightInfo: true,
 			GamePad:    true,
 			MPlayer:    false,
-			PiGo:       false,
+			PiGo:       true,
 			Video:      true,
 			Recorder:   true,
 

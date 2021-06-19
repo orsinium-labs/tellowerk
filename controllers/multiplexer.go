@@ -178,6 +178,16 @@ func (c *Multiplexer) Down(val int) error {
 	return nil
 }
 
+func (c *Multiplexer) Hover() error {
+	for _, sub := range c.controllers {
+		err := sub.Hover()
+		if err != nil {
+			return fmt.Errorf("hover (%s): %v", sub.Name(), err)
+		}
+	}
+	return nil
+}
+
 func (c *Multiplexer) LeftFlip() error {
 	for _, sub := range c.controllers {
 		err := sub.LeftFlip()

@@ -26,7 +26,7 @@ func (rec *Recorder) Connect(pl *Plugins) {
 
 func (rec *Recorder) Start() error {
 	var err error
-	fname := fmt.Sprintf("tello-%s.mpg", time.Now().Format("2006-01-02_15-04-05"))
+	fname := fmt.Sprintf("tello-%s.mp4", time.Now().Format("2006-01-02_15-04-05"))
 	rec.stream, err = os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("create file: %v", err)
