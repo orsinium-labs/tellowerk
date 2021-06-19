@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/orsinium-labs/tellowerk/controllers"
 	"go.uber.org/zap"
@@ -38,14 +39,14 @@ func (plugins *Plugins) All() []Plugin {
 
 func (plugins *Plugins) Run() error {
 	for _, pl := range plugins.All() {
-		if pl == nil {
+		if reflect.ValueOf(pl).IsNil() {
 			continue
 		}
 		pl.Connect(plugins)
 	}
 
 	for _, pl := range plugins.All() {
-		if pl == nil {
+		if reflect.ValueOf(pl).IsNil() {
 			continue
 		}
 		err := pl.Start()
