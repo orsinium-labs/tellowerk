@@ -27,16 +27,16 @@ func NewConfig() Config {
 		Port:      8890,
 		GamepadID: 1,
 		Plugins: EnabledPlugins{
-			FFMpeg:     true,
+			FFMpeg:     false,
 			FlightInfo: true,
 			GamePad:    true,
-			MPlayer:    false,
-			PiGo:       true,
+			MPlayer:    true,
+			PiGo:       false,
 			Video:      true,
 			Recorder:   true,
 
 			Driver:    true,
-			Targeting: true,
+			Targeting: false,
 			ImgShow:   true,
 		},
 	}

@@ -179,7 +179,7 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		}
 	}
 	// take a photo
-	if !oldS.Guide() && newS.Guide() {
+	if !oldS.Guide() && newS.Guide() && g.ffmpeg != nil {
 		g.ffmpeg.Shot = true
 	}
 
