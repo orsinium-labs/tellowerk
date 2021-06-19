@@ -118,7 +118,12 @@ func (ff *FFMpeg) Stop() error {
 }
 
 func (ff *FFMpeg) worker() {
+	i := 0
 	for {
+		i = (i + 1) % 3
+		if i == 0 {
+			continue
+		}
 		if ff.in == nil {
 			return
 		}
@@ -180,6 +185,7 @@ func (ff *FFMpeg) handleFrame() error {
 	if ff.Shot {
 		ff.Shot = false
 		fname := fmt.Sprintf("tello-%s.jpg", time.Now().Format("2006-01-02_15-04-05"))
+		ff.logger.Debug("save the frame", zap.String("name", fname))
 		stream, err := os.Create(fname)
 		if err != nil {
 			return fmt.Errorf("open file: %v", zap.Error(err))

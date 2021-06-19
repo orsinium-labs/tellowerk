@@ -22,6 +22,7 @@ type Plugins struct {
 	GamePad    *GamePad
 	Video      *Video
 	MPlayer    *MPlayer
+	Recorder   *Recorder
 	FFMpeg     *FFMpeg
 	PiGo       *PiGo
 }
@@ -32,6 +33,7 @@ func (plugins *Plugins) All() []Plugin {
 		plugins.GamePad,
 		plugins.Video,
 		plugins.MPlayer,
+		plugins.Recorder,
 		plugins.FFMpeg,
 		plugins.PiGo,
 	}

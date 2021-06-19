@@ -40,7 +40,7 @@ func (mplayer *MPlayer) Start() error {
 	// subscribe to events
 	err = mplayer.driver.On(tello.VideoFrameEvent, mplayer.handle)
 	if err != nil {
-		return fmt.Errorf("subscribe to videoframes: %v", err)
+		return fmt.Errorf("subscribe to video frames: %v", err)
 	}
 	return nil
 }

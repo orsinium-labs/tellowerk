@@ -8,6 +8,7 @@ type EnabledPlugins struct {
 	MPlayer    bool
 	PiGo       bool
 	Video      bool
+	Recorder   bool
 
 	// subplugins
 	Driver    bool
@@ -32,6 +33,7 @@ func NewConfig() Config {
 			MPlayer:    false,
 			PiGo:       false,
 			Video:      true,
+			Recorder:   true,
 
 			Driver:    true,
 			Targeting: true,

@@ -50,6 +50,9 @@ func run(logger *zap.Logger) error {
 	if config.Plugins.MPlayer {
 		pl.MPlayer = plugins.NewMPlayer(driver)
 	}
+	if config.Plugins.Recorder {
+		pl.Recorder = plugins.NewRecorder(driver)
+	}
 	if config.Plugins.PiGo {
 		pl.PiGo = plugins.NewPiGo()
 	}
