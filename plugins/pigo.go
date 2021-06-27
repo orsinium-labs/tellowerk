@@ -3,19 +3,25 @@ package plugins
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"time"
 
 	_ "embed"
 
 	pigo "github.com/esimov/pigo/core"
+	"go.uber.org/zap"
 )
 
 //go:embed facefinder-cascade.bin
 var cascade []byte
 
 type PiGo struct {
+	logger    *zap.Logger
+	targeting *Targeting
+
 	classifier *pigo.Pigo
 	last       time.Time
+	dets       []image.Rectangle
 }
 
 func NewPiGo() *PiGo {
@@ -36,16 +42,24 @@ func (PiGo) Stop() error {
 	return nil
 }
 
-func (PiGo) Connect(pl *Plugins) {
+func (pg *PiGo) Connect(pl *Plugins) {
+	pg.targeting = &Targeting{c: pl.Controller}
 }
 
-func (pg *PiGo) Detect(img image.Image) []image.Rectangle {
+func (pg PiGo) Dets() []image.Rectangle {
+	return pg.dets
+}
+
+func (pg *PiGo) Detect(img image.Image) {
 	now := time.Now()
 	if now.Sub(pg.last) < 400*time.Millisecond {
-		return nil
+		return
 	}
 	pg.last = now
+	go pg.detect(img)
+}
 
+func (pg *PiGo) detect(img image.Image) {
 	pixels := pigo.RgbToGrayscale(img)
 	cParams := pigo.CascadeParams{
 		MinSize:     20,
@@ -71,5 +85,32 @@ func (pg *PiGo) Detect(img image.Image) []image.Rectangle {
 			det.Col+rad, det.Row+rad,
 		)
 	}
-	return res
+	if len(res) > 0 {
+		pg.logger.Debug("faces detected", zap.Int("count", len(res)))
+	}
+
+	err := pg.targeting.Target(res)
+	if err != nil {
+		pg.logger.Error("target to face", zap.Error(err))
+	}
+
+	pg.dets = res
+}
+
+func (pg *PiGo) Draw(img *RGB) {
+	c := color.RGBA{255, 0, 0, 255}
+	for _, det := range pg.Dets() {
+		for x := det.Min.X; x < det.Max.X; x++ {
+			img.Set(x, det.Min.Y, c)
+			img.Set(x, det.Min.Y+1, c)
+			img.Set(x, det.Max.Y, c)
+			img.Set(x, det.Max.Y+1, c)
+		}
+		for y := det.Min.Y; y < det.Max.Y; y++ {
+			img.Set(det.Min.X, y, c)
+			img.Set(det.Min.X+1, y, c)
+			img.Set(det.Max.X, y, c)
+			img.Set(det.Max.X+1, y, c)
+		}
+	}
 }

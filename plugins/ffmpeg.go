@@ -3,7 +3,6 @@ package plugins
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"image/jpeg"
 	"io"
 	"os"
@@ -16,16 +15,14 @@ import (
 )
 
 type FFMpeg struct {
-	logger    *zap.Logger
-	driver    *tello.Driver
-	pigo      *PiGo
-	targeting *Targeting
-	state     *State
+	logger *zap.Logger
+	driver *tello.Driver
+	pigo   *PiGo
+	state  *State
 
-	in   io.WriteCloser
-	out  io.ReadCloser
-	win  *imgshow.Window
-	dets []image.Rectangle
+	in  io.WriteCloser
+	out io.ReadCloser
+	win *imgshow.Window
 
 	Show bool // if the video should be rendered using imgshow
 }
@@ -38,7 +35,6 @@ func (ff *FFMpeg) Connect(pl *Plugins) {
 	ff.pigo = pl.PiGo
 	ff.logger = pl.Logger
 	ff.state = pl.State
-	ff.targeting = &Targeting{c: pl.Controller}
 }
 
 func (ff *FFMpeg) Start() error {
@@ -152,34 +148,8 @@ func (ff *FFMpeg) handleFrame() error {
 
 	// detect faces
 	if ff.pigo != nil && ff.state.FaceCapture() {
-		dets := ff.pigo.Detect(&img)
-		if dets != nil {
-			if len(dets) != 0 {
-				ff.logger.Debug("faces detected", zap.Int("count", len(dets)))
-			}
-			err = ff.targeting.Target(dets)
-			if err != nil {
-				return fmt.Errorf("target to face: %v", err)
-			}
-			ff.dets = dets
-		}
-	}
-
-	// draw rectangles for detected faces
-	c := color.RGBA{255, 0, 0, 255}
-	for _, det := range ff.dets {
-		for x := det.Min.X; x < det.Max.X; x++ {
-			img.Set(x, det.Min.Y, c)
-			img.Set(x, det.Min.Y+1, c)
-			img.Set(x, det.Max.Y, c)
-			img.Set(x, det.Max.Y+1, c)
-		}
-		for y := det.Min.Y; y < det.Max.Y; y++ {
-			img.Set(det.Min.X, y, c)
-			img.Set(det.Min.X+1, y, c)
-			img.Set(det.Max.X, y, c)
-			img.Set(det.Max.X+1, y, c)
-		}
+		ff.pigo.Detect(&img)
+		ff.pigo.Draw(&img)
 	}
 
 	// take a photo
