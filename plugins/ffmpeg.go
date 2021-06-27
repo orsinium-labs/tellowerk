@@ -20,6 +20,7 @@ type FFMpeg struct {
 	driver    *tello.Driver
 	pigo      *PiGo
 	targeting *Targeting
+	state     *State
 
 	in   io.WriteCloser
 	out  io.ReadCloser
@@ -27,7 +28,6 @@ type FFMpeg struct {
 	dets []image.Rectangle
 
 	Show bool // if the video should be rendered using imgshow
-	Shot bool // if the next frame should be saved as an image
 }
 
 func NewFFMpeg(driver *tello.Driver) *FFMpeg {
@@ -37,6 +37,7 @@ func NewFFMpeg(driver *tello.Driver) *FFMpeg {
 func (ff *FFMpeg) Connect(pl *Plugins) {
 	ff.pigo = pl.PiGo
 	ff.logger = pl.Logger
+	ff.state = pl.State
 	ff.targeting = &Targeting{c: pl.Controller}
 }
 
@@ -150,7 +151,7 @@ func (ff *FFMpeg) handleFrame() error {
 	}
 
 	// detect faces
-	if ff.pigo != nil {
+	if ff.pigo != nil && ff.state.FaceCapture() {
 		dets := ff.pigo.Detect(&img)
 		if dets != nil {
 			if len(dets) != 0 {
@@ -182,8 +183,8 @@ func (ff *FFMpeg) handleFrame() error {
 	}
 
 	// take a photo
-	if ff.Shot {
-		ff.Shot = false
+	if ff.state.TakePhoto() {
+		ff.state.SetTakePhoto(false)
 		fname := fmt.Sprintf("tello-%s.jpg", time.Now().Format("2006-01-02_15-04-05"))
 		ff.logger.Debug("save the frame", zap.String("name", fname))
 		stream, err := os.Create(fname)

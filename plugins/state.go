@@ -15,6 +15,8 @@ type State struct {
 	flying   bool
 	exposure int8
 	bitrate  tello.VideoBitRate
+	face     bool
+	photo    bool
 
 	// warnings
 	temp     bool
@@ -109,4 +111,22 @@ func (fi State) Exposure() int8 {
 
 func (fi State) BitRate() tello.VideoBitRate {
 	return fi.bitrate
+}
+
+func (fi State) FaceCapture() bool {
+	return fi.face
+}
+
+func (fi *State) SetFaceCapture(val bool) {
+	fi.logger.Debug("set face capture", zap.Bool("val", val))
+	fi.photo = val
+}
+
+func (fi State) TakePhoto() bool {
+	return fi.face
+}
+
+func (fi *State) SetTakePhoto(val bool) {
+	fi.logger.Debug("set take photo", zap.Bool("val", val))
+	fi.photo = val
 }
