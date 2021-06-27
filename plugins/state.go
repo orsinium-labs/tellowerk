@@ -7,7 +7,7 @@ import (
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
-type FlightInfo struct {
+type State struct {
 	logger *zap.Logger
 	driver *tello.Driver
 
@@ -24,22 +24,22 @@ type FlightInfo struct {
 	wind     bool
 }
 
-func NewFlightInfo(driver *tello.Driver) *FlightInfo {
-	return &FlightInfo{
+func NewState(driver *tello.Driver) *State {
+	return &State{
 		battery: 100,
 		driver:  driver,
 	}
 }
 
-func (fi *FlightInfo) Connect(pl *Plugins) {
+func (fi *State) Connect(pl *Plugins) {
 	fi.logger = pl.Logger
 }
 
-func (FlightInfo) Stop() error {
+func (State) Stop() error {
 	return nil
 }
 
-func (fi *FlightInfo) Start() error {
+func (fi *State) Start() error {
 	var err error
 	err = fi.driver.On(tello.FlightDataEvent, func(data interface{}) {
 		fi.update(data.(*tello.FlightData))
@@ -62,7 +62,7 @@ func (fi *FlightInfo) Start() error {
 	return nil
 }
 
-func (fi *FlightInfo) update(data *tello.FlightData) {
+func (fi *State) update(data *tello.FlightData) {
 	if fi.battery != data.BatteryPercentage {
 		if data.BatteryPercentage%10 == 0 || fi.battery == 100 {
 			field := zap.Int8("value", data.BatteryPercentage)
@@ -99,14 +99,14 @@ func (fi *FlightInfo) update(data *tello.FlightData) {
 	fi.flying = data.Flying
 }
 
-func (fi FlightInfo) Flying() bool {
+func (fi State) Flying() bool {
 	return fi.flying
 }
 
-func (fi FlightInfo) Exposure() int8 {
+func (fi State) Exposure() int8 {
 	return fi.exposure
 }
 
-func (fi FlightInfo) BitRate() tello.VideoBitRate {
+func (fi State) BitRate() tello.VideoBitRate {
 	return fi.bitrate
 }

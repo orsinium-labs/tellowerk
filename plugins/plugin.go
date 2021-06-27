@@ -18,18 +18,18 @@ type Plugins struct {
 	Controller controllers.Controller
 	Logger     *zap.Logger
 
-	FlightInfo *FlightInfo
-	GamePad    *GamePad
-	Video      *Video
-	MPlayer    *MPlayer
-	Recorder   *Recorder
-	FFMpeg     *FFMpeg
-	PiGo       *PiGo
+	State    *State
+	GamePad  *GamePad
+	Video    *Video
+	MPlayer  *MPlayer
+	Recorder *Recorder
+	FFMpeg   *FFMpeg
+	PiGo     *PiGo
 }
 
 func (plugins *Plugins) All() []Plugin {
 	return []Plugin{
-		plugins.FlightInfo,
+		plugins.State,
 		plugins.GamePad,
 		plugins.Video,
 		plugins.MPlayer,

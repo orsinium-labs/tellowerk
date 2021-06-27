@@ -11,7 +11,7 @@ import (
 
 type GamePad struct {
 	controller controllers.Controller
-	info       *FlightInfo
+	state      *State
 	ffmpeg     *FFMpeg
 	logger     *zap.Logger
 
@@ -28,7 +28,7 @@ func NewGamePad(g *gamepad.GamePad) *GamePad {
 
 func (g *GamePad) Connect(pl *Plugins) {
 	g.controller = pl.Controller
-	g.info = pl.FlightInfo
+	g.state = pl.State
 	g.logger = pl.Logger
 	g.ffmpeg = pl.FFMpeg
 }
@@ -77,7 +77,7 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 	var err error
 
 	// take off and land
-	if g.info.Flying() {
+	if g.state.Flying() {
 		if !oldS.A() && newS.A() {
 			return g.controller.Land()
 		}
@@ -143,14 +143,14 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 
 	// handle video settings
 	if !oldS.X() && newS.X() {
-		e := int(g.info.Exposure()+1) % 3
+		e := int(g.state.Exposure()+1) % 3
 		err = g.controller.SetExposure(e)
 		if err != nil {
 			return err
 		}
 	}
 	if !oldS.Y() && newS.Y() {
-		r := tello.VideoBitRate(int(g.info.BitRate()+1) % 6)
+		r := tello.VideoBitRate(int(g.state.BitRate()+1) % 6)
 		err = g.controller.SetVideoBitRate(r)
 		if err != nil {
 			return err

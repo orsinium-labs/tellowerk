@@ -2,13 +2,13 @@ package main
 
 type EnabledPlugins struct {
 	// actual plugins
-	FFMpeg     bool
-	FlightInfo bool
-	GamePad    bool
-	MPlayer    bool
-	PiGo       bool
-	Video      bool
-	Recorder   bool
+	FFMpeg   bool
+	State    bool
+	GamePad  bool
+	MPlayer  bool
+	PiGo     bool
+	Video    bool
+	Recorder bool
 
 	// subplugins
 	Driver    bool
@@ -27,13 +27,13 @@ func NewConfig() Config {
 		Port:      8890,
 		GamepadID: 1,
 		Plugins: EnabledPlugins{
-			FFMpeg:     false,
-			FlightInfo: true,
-			GamePad:    true,
-			MPlayer:    true,
-			PiGo:       false,
-			Video:      true,
-			Recorder:   true,
+			FFMpeg:   false,
+			State:    true,
+			GamePad:  true,
+			MPlayer:  true,
+			PiGo:     false,
+			Video:    true,
+			Recorder: true,
 
 			Driver:    true,
 			Targeting: false,

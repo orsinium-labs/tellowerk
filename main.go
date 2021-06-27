@@ -38,8 +38,8 @@ func run(logger *zap.Logger) error {
 		pl.FFMpeg = plugins.NewFFMpeg(driver)
 		pl.FFMpeg.Show = config.Plugins.ImgShow
 	}
-	if config.Plugins.FlightInfo {
-		pl.FlightInfo = plugins.NewFlightInfo(driver)
+	if config.Plugins.State {
+		pl.State = plugins.NewState(driver)
 	}
 	if config.Plugins.GamePad {
 		pl.GamePad = plugins.NewGamePad(g)

@@ -8,7 +8,7 @@ import (
 )
 
 type WebAPI struct {
-	info   *FlightInfo
+	state  *State
 	logger *zap.Logger
 }
 
@@ -25,9 +25,9 @@ func (api *WebAPI) Start() error {
 
 func (api *WebAPI) handleAPI(w http.ResponseWriter, r *http.Request) {
 	resp := APIResponse{
-		Battery:  api.info.battery,
-		Flying:   api.info.Flying(),
-		Exposure: api.info.Exposure(),
+		Battery:  api.state.battery,
+		Flying:   api.state.Flying(),
+		Exposure: api.state.Exposure(),
 	}
 	err := json.NewEncoder(w).Encode(resp)
 	if err != nil {
