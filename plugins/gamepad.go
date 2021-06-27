@@ -76,7 +76,7 @@ func (g *GamePad) worker() {
 func (g *GamePad) update(oldS, newS gamepad.State) error {
 	var err error
 
-	// handle take off and land
+	// take off and land
 	if g.info.Flying() {
 		if !oldS.A() && newS.A() {
 			return g.controller.Land()
@@ -99,49 +99,27 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		}
 	}
 
-	// handle ox movement
+	// movement
 	if oldS.LS().X != newS.LS().X {
-		if newS.LS().X >= 0 {
-			err = g.controller.Right(newS.LS().X)
-		} else {
-			err = g.controller.Left(-newS.LS().X)
+		err = g.controller.OX(newS.LS().X)
+		if err != nil {
+			return err
 		}
 	}
-	if err != nil {
-		return err
-	}
-
-	// handle oy movement
 	if oldS.LS().Y != newS.LS().Y {
-		if newS.LS().Y >= 0 {
-			err = g.controller.Backward(newS.LS().Y)
-		} else {
-			err = g.controller.Forward(-newS.LS().Y)
+		err = g.controller.OY(newS.LS().Y)
+		if err != nil {
+			return err
 		}
 	}
-	if err != nil {
-		return err
-	}
-
-	// handle ox rotation
 	if oldS.RS().X != newS.RS().X {
-		if newS.RS().X >= 0 {
-			err = g.controller.Clockwise(newS.RS().X)
-		} else {
-			err = g.controller.CounterClockwise(-newS.RS().X)
+		err = g.controller.Rotate(newS.RS().X)
+		if err != nil {
+			return err
 		}
 	}
-	if err != nil {
-		return err
-	}
-
-	// handle oz movement
 	if oldS.RS().Y != newS.RS().Y {
-		if newS.RS().Y >= 0 {
-			err = g.controller.Down(newS.RS().Y)
-		} else {
-			err = g.controller.Up(-newS.RS().Y)
-		}
+		err = g.controller.OZ(-newS.RS().Y)
 	}
 	if err != nil {
 		return err

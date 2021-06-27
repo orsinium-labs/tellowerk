@@ -98,9 +98,10 @@ func (c *Multiplexer) StopLanding() error {
 
 // movement
 
-func (c *Multiplexer) Clockwise(val int) error {
+// Rotate clockwise or, if negate, counter-clockwise.
+func (c *Multiplexer) Rotate(val int) error {
 	for _, sub := range c.controllers {
-		err := sub.Clockwise(val)
+		err := sub.Rotate(val)
 		if err != nil {
 			return fmt.Errorf("rotate clockwise (%s): %v", sub.Name(), err)
 		}
@@ -108,19 +109,10 @@ func (c *Multiplexer) Clockwise(val int) error {
 	return nil
 }
 
-func (c *Multiplexer) CounterClockwise(val int) error {
+// Move forward or, if negative, backward.
+func (c *Multiplexer) OY(val int) error {
 	for _, sub := range c.controllers {
-		err := sub.CounterClockwise(val)
-		if err != nil {
-			return fmt.Errorf("rotate counter clockwise (%s): %v", sub.Name(), err)
-		}
-	}
-	return nil
-}
-
-func (c *Multiplexer) Forward(val int) error {
-	for _, sub := range c.controllers {
-		err := sub.Forward(val)
+		err := sub.OY(val)
 		if err != nil {
 			return fmt.Errorf("forward (%s): %v", sub.Name(), err)
 		}
@@ -128,29 +120,9 @@ func (c *Multiplexer) Forward(val int) error {
 	return nil
 }
 
-func (c *Multiplexer) Backward(val int) error {
+func (c *Multiplexer) OX(val int) error {
 	for _, sub := range c.controllers {
-		err := sub.Backward(val)
-		if err != nil {
-			return fmt.Errorf("backward (%s): %v", sub.Name(), err)
-		}
-	}
-	return nil
-}
-
-func (c *Multiplexer) Left(val int) error {
-	for _, sub := range c.controllers {
-		err := sub.Left(val)
-		if err != nil {
-			return fmt.Errorf("left (%s): %v", sub.Name(), err)
-		}
-	}
-	return nil
-}
-
-func (c *Multiplexer) Right(val int) error {
-	for _, sub := range c.controllers {
-		err := sub.Right(val)
+		err := sub.OX(val)
 		if err != nil {
 			return fmt.Errorf("right (%s): %v", sub.Name(), err)
 		}
@@ -158,21 +130,11 @@ func (c *Multiplexer) Right(val int) error {
 	return nil
 }
 
-func (c *Multiplexer) Up(val int) error {
+func (c *Multiplexer) OZ(val int) error {
 	for _, sub := range c.controllers {
-		err := sub.Up(val)
+		err := sub.OZ(val)
 		if err != nil {
 			return fmt.Errorf("up (%s): %v", sub.Name(), err)
-		}
-	}
-	return nil
-}
-
-func (c *Multiplexer) Down(val int) error {
-	for _, sub := range c.controllers {
-		err := sub.Down(val)
-		if err != nil {
-			return fmt.Errorf("down (%s): %v", sub.Name(), err)
 		}
 	}
 	return nil

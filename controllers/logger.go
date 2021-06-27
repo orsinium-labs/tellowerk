@@ -58,43 +58,23 @@ func (c *Logger) StopLanding() error {
 
 // movment
 
-func (c *Logger) Clockwise(val int) error {
-	c.logger.Debug("rotate clockwise", zap.Int("val", val))
+func (c *Logger) Rotate(val int) error {
+	c.logger.Debug("rotate", zap.Int("val", val))
 	return nil
 }
 
-func (c *Logger) CounterClockwise(val int) error {
-	c.logger.Debug("rotate counter clockwise", zap.Int("val", val))
+func (c *Logger) OX(val int) error {
+	c.logger.Debug("move ox", zap.Int("val", val))
 	return nil
 }
 
-func (c *Logger) Forward(val int) error {
-	c.logger.Debug("forward", zap.Int("val", val))
+func (c *Logger) OY(val int) error {
+	c.logger.Debug("move oy", zap.Int("val", val))
 	return nil
 }
 
-func (c *Logger) Backward(val int) error {
-	c.logger.Debug("backward", zap.Int("val", val))
-	return nil
-}
-
-func (c *Logger) Left(val int) error {
-	c.logger.Debug("left", zap.Int("val", val))
-	return nil
-}
-
-func (c *Logger) Right(val int) error {
-	c.logger.Debug("right", zap.Int("val", val))
-	return nil
-}
-
-func (c *Logger) Up(val int) error {
-	c.logger.Debug("up", zap.Int("val", val))
-	return nil
-}
-
-func (c *Logger) Down(val int) error {
-	c.logger.Debug("down", zap.Int("val", val))
+func (c *Logger) OZ(val int) error {
+	c.logger.Debug("move oz", zap.Int("val", val))
 	return nil
 }
 

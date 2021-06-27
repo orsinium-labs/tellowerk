@@ -16,14 +16,10 @@ type Controller interface {
 	StopLanding() error
 
 	// movement
-	Clockwise(int) error
-	CounterClockwise(int) error
-	Forward(int) error
-	Backward(int) error
-	Left(int) error
-	Right(int) error
-	Down(int) error
-	Up(int) error
+	Rotate(int) error
+	OY(int) error
+	OX(int) error
+	OZ(int) error
 	Hover() error
 
 	// tricks

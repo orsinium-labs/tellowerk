@@ -25,6 +25,22 @@ func (c *Driver) Hover() error {
 	return nil
 }
 
+func (c *Driver) OX(val int) error {
+	return c.Driver.Right(val)
+}
+
+func (c *Driver) OY(val int) error {
+	return c.Driver.Forward(val)
+}
+
+func (c *Driver) OZ(val int) error {
+	return c.Driver.Up(val)
+}
+
+func (c *Driver) Rotate(val int) error {
+	return c.Driver.Clockwise(val)
+}
+
 func (c *Driver) SetVideoBitRate(val tello.VideoBitRate) error {
 	return c.Driver.SetVideoEncoderRate(val)
 }
