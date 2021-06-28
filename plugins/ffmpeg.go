@@ -159,12 +159,12 @@ func (ff *FFMpeg) handleFrame() error {
 		ff.logger.Debug("save the frame", zap.String("name", fname))
 		stream, err := os.Create(fname)
 		if err != nil {
-			return fmt.Errorf("open file: %v", zap.Error(err))
+			return fmt.Errorf("open file: %v", err)
 		}
 		defer stream.Close()
 		err = jpeg.Encode(stream, &img, nil)
 		if err != nil {
-			return fmt.Errorf("encode jpeg: %v", zap.Error(err))
+			return fmt.Errorf("encode jpeg: %v", err)
 		}
 	}
 
@@ -172,7 +172,7 @@ func (ff *FFMpeg) handleFrame() error {
 	if ff.win != nil {
 		err = ff.win.Draw(&img)
 		if err != nil {
-			return fmt.Errorf("draw frame: %v", zap.Error(err))
+			return fmt.Errorf("draw frame: %v", err)
 		}
 	}
 	return nil
