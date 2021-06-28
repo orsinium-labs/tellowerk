@@ -15,13 +15,12 @@ type GamePad struct {
 	logger     *zap.Logger
 
 	gamepad *gamepad.GamePad
-	finish  chan struct{}
+	ui      *UI
 }
 
 func NewGamePad(g *gamepad.GamePad) *GamePad {
 	return &GamePad{
 		gamepad: g,
-		finish:  make(chan struct{}),
 	}
 }
 
@@ -41,10 +40,6 @@ func (GamePad) Stop() error {
 	return nil
 }
 
-func (g *GamePad) Wait() {
-	<-g.finish
-}
-
 func (g *GamePad) worker() {
 	var oldState gamepad.State
 	time.Sleep(time.Second)
@@ -58,7 +53,10 @@ func (g *GamePad) worker() {
 		}
 		if newState.Start() {
 			g.logger.Debug("closing connection")
-			g.finish <- struct{}{}
+			err = g.ui.Stop()
+			if err != nil {
+				g.logger.Error("stop UI", zap.Error(err))
+			}
 			return
 		}
 		err = g.update(oldState, newState)

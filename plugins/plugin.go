@@ -25,6 +25,7 @@ type Plugins struct {
 	Recorder *Recorder
 	FFMpeg   *FFMpeg
 	PiGo     *PiGo
+	UI       *UI
 }
 
 func (plugins *Plugins) All() []Plugin {
@@ -36,6 +37,7 @@ func (plugins *Plugins) All() []Plugin {
 		plugins.Recorder,
 		plugins.FFMpeg,
 		plugins.PiGo,
+		plugins.UI,
 	}
 }
 
@@ -62,6 +64,6 @@ func (plugins *Plugins) Run() error {
 			}
 		}(pl)
 	}
-	plugins.GamePad.Wait()
+	plugins.UI.Wait()
 	return nil
 }

@@ -56,6 +56,9 @@ func run(logger *zap.Logger) error {
 	if config.Plugins.PiGo {
 		pl.PiGo = plugins.NewPiGo()
 	}
+	if config.Plugins.UI {
+		pl.UI = plugins.NewUI()
+	}
 
 	// start controller
 	err = controller.Start()

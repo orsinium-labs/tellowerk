@@ -8,6 +8,7 @@ replace (
 )
 
 require (
+	fyne.io/fyne/v2 v2.0.3
 	github.com/esimov/pigo v1.4.4
 	github.com/orsinium-labs/gamepad v1.0.4
 	github.com/orsinium-labs/imgshow v1.1.0
