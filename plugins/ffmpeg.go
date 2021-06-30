@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/orsinium-labs/imgshow"
 	"go.uber.org/zap"
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
@@ -23,9 +22,6 @@ type FFMpeg struct {
 
 	in  io.WriteCloser
 	out io.ReadCloser
-	win *imgshow.Window
-
-	Show bool // if the video should be rendered using imgshow
 }
 
 func NewFFMpeg(driver *tello.Driver) *FFMpeg {
@@ -64,19 +60,6 @@ func (ff *FFMpeg) Start() error {
 		return fmt.Errorf("run ffmpeg: %v", err)
 	}
 
-	if ff.Show {
-		c := imgshow.NewConfig()
-		c.Width = frameX
-		c.Height = frameY
-		c.Title = "tellowerk"
-		ff.win = c.Window()
-		err = ff.win.Create()
-		if err != nil {
-			return fmt.Errorf("create window: %v", err)
-		}
-		go ff.win.Render()
-	}
-
 	go ff.worker()
 	err = ff.driver.On(tello.VideoFrameEvent, ff.handle)
 	if err != nil {
@@ -100,9 +83,6 @@ func (ff *FFMpeg) handle(data interface{}) {
 
 func (ff *FFMpeg) Stop() error {
 	var err error
-	if ff.win != nil {
-		ff.win.Destroy()
-	}
 	err = ff.in.Close()
 	if err != nil {
 		return fmt.Errorf("close ffmpeg stdin: %v", err)
@@ -170,13 +150,7 @@ func (ff *FFMpeg) handleFrame() error {
 		}
 	}
 
-	// render the frame on the screen
-	if ff.win != nil {
-		err = ff.win.Draw(&img)
-		if err != nil {
-			return fmt.Errorf("draw frame: %v", err)
-		}
-	}
+	// render the frame
 	if ff.ui != nil {
 		ff.ui.SetFrame(&img)
 	}

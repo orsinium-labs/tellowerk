@@ -14,7 +14,6 @@ type EnabledPlugins struct {
 	// subplugins
 	Driver    bool
 	Targeting bool
-	ImgShow   bool
 }
 
 type Config struct {
@@ -39,7 +38,6 @@ func NewConfig() Config {
 
 			Driver:    true,
 			Targeting: false,
-			ImgShow:   false,
 		},
 	}
 }
