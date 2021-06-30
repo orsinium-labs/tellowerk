@@ -7,6 +7,10 @@ type StateLogger struct {
 	battery bool
 }
 
+func NewStateLogger(logger *zap.Logger) *StateLogger {
+	return &StateLogger{logger: logger}
+}
+
 var _ StateHandler = &StateLogger{}
 
 func (log *StateLogger) SetBattery(val int8) {

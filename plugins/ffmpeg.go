@@ -19,6 +19,7 @@ type FFMpeg struct {
 	driver *tello.Driver
 	pigo   *PiGo
 	state  *State
+	ui     *UI
 
 	in  io.WriteCloser
 	out io.ReadCloser
@@ -35,6 +36,7 @@ func (ff *FFMpeg) Connect(pl *Plugins) {
 	ff.pigo = pl.PiGo
 	ff.logger = pl.Logger
 	ff.state = pl.State
+	ff.ui = pl.UI
 }
 
 func (ff *FFMpeg) Start() error {
@@ -174,6 +176,9 @@ func (ff *FFMpeg) handleFrame() error {
 		if err != nil {
 			return fmt.Errorf("draw frame: %v", err)
 		}
+	}
+	if ff.ui != nil {
+		ff.ui.SetFrame(&img)
 	}
 	return nil
 }

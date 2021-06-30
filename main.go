@@ -59,6 +59,8 @@ func run(logger *zap.Logger) error {
 	if config.Plugins.UI {
 		pl.UI = plugins.NewUI()
 	}
+	pl.State.Addhandler(pl.UI)
+	pl.State.Addhandler(plugins.NewStateLogger(logger))
 
 	// start controller
 	err = controller.Start()

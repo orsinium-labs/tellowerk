@@ -2,13 +2,14 @@ package plugins
 
 import (
 	"fmt"
-	"image/color"
+	"image"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 )
 
 type UI struct {
@@ -17,6 +18,7 @@ type UI struct {
 
 	battery    *canvas.Text
 	warns      *canvas.Text
+	video      *canvas.Image
 	warnsState map[string]bool
 }
 
@@ -42,18 +44,28 @@ func (ui *UI) Stop() error {
 }
 
 func (ui *UI) Start() error {
+	// ui.app.Settings().SetTheme(theme.LightTheme())
 	ui.win = ui.app.NewWindow("tellowerk")
 
-	ui.battery = canvas.NewText("battery", color.Black)
-	ui.warns = canvas.NewText("", color.Black)
-	ui.win.SetContent(
-		container.New(layout.NewGridLayout(1), ui.battery, ui.warns),
+	ui.battery = canvas.NewText("battery", theme.ForegroundColor())
+	ui.warns = canvas.NewText("", theme.ForegroundColor())
+	ui.video = canvas.NewImageFromImage(
+		image.NewGray(image.Rect(0, 0, frameX, frameY)),
 	)
+	ui.video.SetMinSize(fyne.NewSize(frameX, frameY))
+	content := container.NewHBox(
+		container.New(layout.NewGridLayout(1), ui.battery, ui.warns),
+		ui.video,
+	)
+	ui.win.SetContent(content)
 	ui.win.Show()
 	return nil
 }
 
 func (ui *UI) SetBattery(val int8) {
+	if ui.battery == nil {
+		return
+	}
 	ui.battery.Text = fmt.Sprintf("battery %d%%", val)
 	ui.battery.Refresh()
 }
@@ -69,4 +81,9 @@ func (ui *UI) SetWarning(msg string, state bool) {
 	}
 	ui.warns.Text = text
 	ui.warns.Refresh()
+}
+
+func (ui *UI) SetFrame(img image.Image) {
+	ui.video.Image = img
+	ui.video.Refresh()
 }
