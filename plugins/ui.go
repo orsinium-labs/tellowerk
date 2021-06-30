@@ -67,7 +67,20 @@ func (ui *UI) SetBattery(val int8) {
 		return
 	}
 	ui.battery.Text = fmt.Sprintf("battery %d%%", val)
+	if val <= 20 {
+		ui.warnsState["low battery"] = true
+	}
 	ui.battery.Refresh()
+}
+
+func (ui *UI) SetNorthSpeed(val int16) {
+
+}
+func (ui *UI) SetEastSpeed(val int16) {
+
+}
+func (ui *UI) SetVerticalSpeed(val int16) {
+
 }
 
 func (ui *UI) SetWarning(msg string, state bool) {

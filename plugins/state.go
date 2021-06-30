@@ -8,15 +8,18 @@ import (
 )
 
 type StateHandler interface {
-	SetBattery(val int8)
+	SetBattery(int8)
 	SetWarning(msg string, state bool)
+
+	SetNorthSpeed(int16)
+	SetEastSpeed(int16)
+	SetVerticalSpeed(int16)
 }
 
 type State struct {
 	logger *zap.Logger
 	driver *tello.Driver
 
-	battery  int8
 	flying   bool
 	exposure int8
 	bitrate  tello.VideoBitRate
@@ -30,6 +33,12 @@ type State struct {
 	pressure bool
 	video    bool
 	wind     bool
+
+	// metrics
+	battery int8
+	east    int16
+	north   int16
+	vert    int16
 }
 
 func NewState(driver *tello.Driver) *State {
@@ -76,12 +85,33 @@ func (fi *State) Start() error {
 }
 
 func (fi *State) update(data *tello.FlightData) {
+	// metrics
 	if fi.battery != data.BatteryPercentage {
 		for _, h := range fi.handlers {
 			h.SetBattery(data.BatteryPercentage)
 		}
 		fi.battery = data.BatteryPercentage
 	}
+	if fi.east != data.EastSpeed {
+		for _, h := range fi.handlers {
+			h.SetEastSpeed(data.EastSpeed)
+		}
+		fi.east = data.EastSpeed
+	}
+	if fi.north != data.NorthSpeed {
+		for _, h := range fi.handlers {
+			h.SetNorthSpeed(data.NorthSpeed)
+		}
+		fi.north = data.NorthSpeed
+	}
+	if fi.vert != data.VerticalSpeed {
+		for _, h := range fi.handlers {
+			h.SetVerticalSpeed(data.VerticalSpeed)
+		}
+		fi.vert = data.VerticalSpeed
+	}
+
+	// warnings
 	if fi.temp != data.TemperatureHigh {
 		for _, h := range fi.handlers {
 			h.SetWarning("high temperature", data.TemperatureHigh)
