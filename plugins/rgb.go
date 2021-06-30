@@ -25,7 +25,7 @@ func (p *RGB) At(x, y int) color.Color {
 	}
 	i := p.PixOffset(x, y)
 	s := p.Pix[i : i+3 : i+3]
-	return color.RGBA{s[2], s[1], s[0], 0}
+	return color.RGBA{s[2], s[1], s[0], 255}
 }
 
 func (p *RGB) PixOffset(x, y int) int {

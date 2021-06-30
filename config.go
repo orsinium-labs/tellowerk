@@ -39,7 +39,7 @@ func NewConfig() Config {
 
 			Driver:    true,
 			Targeting: false,
-			ImgShow:   true,
+			ImgShow:   false,
 		},
 	}
 }

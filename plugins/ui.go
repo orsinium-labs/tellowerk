@@ -50,7 +50,7 @@ func (ui *UI) Start() error {
 	ui.battery = canvas.NewText("battery", theme.ForegroundColor())
 	ui.warns = canvas.NewText("", theme.ForegroundColor())
 	ui.video = canvas.NewImageFromImage(
-		image.NewGray(image.Rect(0, 0, frameX, frameY)),
+		image.NewRGBA(image.Rect(0, 0, frameX, frameY)),
 	)
 	ui.video.SetMinSize(fyne.NewSize(frameX, frameY))
 	content := container.NewHBox(
@@ -83,7 +83,8 @@ func (ui *UI) SetWarning(msg string, state bool) {
 	ui.warns.Refresh()
 }
 
-func (ui *UI) SetFrame(img image.Image) {
+func (ui *UI) SetFrame(img *RGB) {
+	ui.video.File = ""
 	ui.video.Image = img
 	ui.video.Refresh()
 }
