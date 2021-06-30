@@ -3,7 +3,6 @@ package plugins
 import (
 	"fmt"
 	"image/color"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -13,24 +12,24 @@ import (
 )
 
 type UI struct {
-	state    *State
-	oldState State
-
 	app fyne.App
 	win fyne.Window
 
-	battery *canvas.Text
+	battery    *canvas.Text
+	warns      *canvas.Text
+	warnsState map[string]bool
 }
+
+var _ StateHandler = &UI{}
 
 func NewUI() *UI {
 	return &UI{
-		app: app.New(),
+		app:        app.New(),
+		warnsState: make(map[string]bool),
 	}
 }
 
 func (ui *UI) Connect(pl *Plugins) {
-	ui.state = pl.State
-	ui.oldState = *pl.State
 }
 
 func (ui *UI) Wait() {
@@ -46,25 +45,28 @@ func (ui *UI) Start() error {
 	ui.win = ui.app.NewWindow("tellowerk")
 
 	ui.battery = canvas.NewText("battery", color.Black)
+	ui.warns = canvas.NewText("", color.Black)
 	ui.win.SetContent(
-		container.New(layout.NewGridLayout(1), ui.battery),
+		container.New(layout.NewGridLayout(1), ui.battery, ui.warns),
 	)
 	ui.win.Show()
-	go ui.worker()
 	return nil
 }
 
-func (ui *UI) worker() {
-	ticker := time.NewTicker(time.Second)
-	for range ticker.C {
-		ui.update()
-	}
+func (ui *UI) SetBattery(val int8) {
+	ui.battery.Text = fmt.Sprintf("battery %d%%", val)
+	ui.battery.Refresh()
 }
 
-func (ui *UI) update() {
-	if ui.state.battery != ui.oldState.battery {
-		ui.battery.Text = fmt.Sprintf("battery %d%%", ui.state.battery)
-		ui.battery.Refresh()
+func (ui *UI) SetWarning(msg string, state bool) {
+	ui.warnsState[msg] = state
+
+	text := ""
+	for msg, state := range ui.warnsState {
+		if state {
+			text += msg + "\n"
+		}
 	}
-	ui.oldState = *ui.state
+	ui.warns.Text = text
+	ui.warns.Refresh()
 }

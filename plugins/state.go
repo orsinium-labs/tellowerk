@@ -7,6 +7,11 @@ import (
 	"gobot.io/x/gobot/platforms/dji/tello"
 )
 
+type StateHandler interface {
+	SetBattery(val int8)
+	SetWarning(msg string, state bool)
+}
+
 type State struct {
 	logger *zap.Logger
 	driver *tello.Driver
@@ -17,6 +22,7 @@ type State struct {
 	bitrate  tello.VideoBitRate
 	face     bool
 	photo    bool
+	handlers []StateHandler
 
 	// warnings
 	temp     bool
@@ -28,13 +34,18 @@ type State struct {
 
 func NewState(driver *tello.Driver) *State {
 	return &State{
-		battery: 100,
-		driver:  driver,
+		battery:  100,
+		driver:   driver,
+		handlers: make([]StateHandler, 0),
 	}
 }
 
 func (fi *State) Connect(pl *Plugins) {
 	fi.logger = pl.Logger
+}
+
+func (fi *State) Addhandler(h StateHandler) {
+	fi.handlers = append(fi.handlers, h)
 }
 
 func (State) Stop() error {
@@ -66,38 +77,42 @@ func (fi *State) Start() error {
 
 func (fi *State) update(data *tello.FlightData) {
 	if fi.battery != data.BatteryPercentage {
-		if data.BatteryPercentage%10 == 0 || fi.battery == 100 {
-			field := zap.Int8("value", data.BatteryPercentage)
-			if data.BatteryPercentage > 20 {
-				fi.logger.Info("battery", field)
-			} else {
-				fi.logger.Warn("battery", field)
-			}
+		for _, h := range fi.handlers {
+			h.SetBattery(data.BatteryPercentage)
 		}
+		fi.battery = data.BatteryPercentage
 	}
-	if !fi.temp && data.TemperatureHigh {
-		fi.logger.Warn("high temperature")
+	if fi.temp != data.TemperatureHigh {
+		for _, h := range fi.handlers {
+			h.SetWarning("high temperature", data.TemperatureHigh)
+		}
+		fi.temp = data.TemperatureHigh
 	}
-	if !fi.imu && data.ImuState {
-		fi.logger.Warn("IMU calibration needed")
+	if fi.imu != data.ImuState {
+		for _, h := range fi.handlers {
+			h.SetWarning("IMU calibration needed", data.ImuState)
+		}
+		fi.imu = data.ImuState
 	}
-	if !fi.pressure && data.PressureState {
-		fi.logger.Warn("pressure issues")
+	if fi.pressure != data.PressureState {
+		for _, h := range fi.handlers {
+			h.SetWarning("pressure issues", data.PressureState)
+		}
+		fi.pressure = data.PressureState
 	}
-	if !fi.video && data.OutageRecording {
-		fi.logger.Warn("video recording outage")
+	if fi.video != data.OutageRecording {
+		for _, h := range fi.handlers {
+			h.SetWarning("video recording outage", data.OutageRecording)
+		}
+		fi.video = data.OutageRecording
 	}
-	if !fi.wind && data.WindState {
-		fi.logger.Warn("strong wind")
+	if fi.wind != data.WindState {
+		for _, h := range fi.handlers {
+			h.SetWarning("strong wind", data.WindState)
+		}
+		fi.wind = data.WindState
 	}
 
-	fi.temp = data.TemperatureHigh
-	fi.imu = data.ImuState
-	fi.pressure = data.PressureState
-	fi.video = data.OutageRecording
-	fi.wind = data.WindState
-
-	fi.battery = data.BatteryPercentage
 	fi.flying = data.Flying
 }
 
