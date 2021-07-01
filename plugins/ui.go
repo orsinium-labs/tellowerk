@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
+	"github.com/orsinium-labs/tellowerk/icons"
 )
 
 type UI struct {
@@ -43,6 +44,13 @@ func (ui *UI) Stop() error {
 	return nil
 }
 
+func (UI) icon(res fyne.Resource) *canvas.Image {
+	img := canvas.NewImageFromResource(res)
+	img.FillMode = canvas.ImageFillOriginal
+	img.SetMinSize(fyne.NewSize(24, 24))
+	return img
+}
+
 func (ui *UI) Start() error {
 	// ui.app.Settings().SetTheme(theme.LightTheme())
 	ui.win = ui.app.NewWindow("tellowerk")
@@ -54,7 +62,11 @@ func (ui *UI) Start() error {
 	)
 	ui.video.SetMinSize(fyne.NewSize(frameX, frameY))
 	content := container.NewHBox(
-		container.New(layout.NewGridLayout(1), ui.battery, ui.warns),
+		container.New(
+			layout.NewGridLayout(1),
+			container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
+			container.NewHBox(ui.icon(icons.WarningOutlinedIconThemed), ui.warns),
+		),
 		ui.video,
 	)
 	ui.win.SetContent(content)

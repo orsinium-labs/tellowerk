@@ -10,6 +10,7 @@ replace (
 require (
 	fyne.io/fyne/v2 v2.0.3
 	github.com/esimov/pigo v1.4.4
+	github.com/lucor/fynematic v0.0.0-20210606153110-9e1470accb54
 	github.com/orsinium-labs/gamepad v1.0.4
 	go.uber.org/atomic v1.8.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect

@@ -1,0 +1,22 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  build:
+    cmds:
+      - go install github.com/lucor/fynematic
+      # https://fonts.google.com/icons
+      - fynematic -dir ./icons -package icons -category device -name battery_std
+      - fynematic -dir ./icons -package icons -category alert -name warning
+      - go build -o tellowerk.bin .
+    silent: true
+
+  run:
+    deps:
+      - build
+    cmds:
+      - ./tellowerk.bin
