@@ -6,12 +6,19 @@ vars:
   GREETING: Hello, World!
 
 tasks:
-  build:
+  icons:
+    status:
+      - test -f icons/battery_std_outlined.go
+      - test -f icons/warning_outlined.go
     cmds:
       - go install github.com/lucor/fynematic
       # https://fonts.google.com/icons
       - fynematic -dir ./icons -package icons -category device -name battery_std
       - fynematic -dir ./icons -package icons -category alert -name warning
+  build:
+    deps:
+      - icons
+    cmds:
       - go build -o tellowerk.bin .
     silent: true
 

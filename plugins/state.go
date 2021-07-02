@@ -19,31 +19,17 @@ type StateHandler interface {
 type State struct {
 	logger *zap.Logger
 	driver *tello.Driver
+	d      tello.FlightData
 
-	flying   bool
 	exposure int8
 	bitrate  tello.VideoBitRate
 	face     bool
 	photo    bool
 	handlers []StateHandler
-
-	// warnings
-	temp     bool
-	imu      bool
-	pressure bool
-	video    bool
-	wind     bool
-
-	// metrics
-	battery int8
-	east    int16
-	north   int16
-	vert    int16
 }
 
 func NewState(driver *tello.Driver) *State {
 	return &State{
-		battery:  100,
 		driver:   driver,
 		handlers: make([]StateHandler, 0),
 	}
@@ -86,68 +72,64 @@ func (fi *State) Start() error {
 
 func (fi *State) update(data *tello.FlightData) {
 	// metrics
-	if fi.battery != data.BatteryPercentage {
+	if fi.d.BatteryPercentage != data.BatteryPercentage {
 		for _, h := range fi.handlers {
 			h.SetBattery(data.BatteryPercentage)
 		}
-		fi.battery = data.BatteryPercentage
 	}
-	if fi.east != data.EastSpeed {
+	if fi.d.EastSpeed != data.EastSpeed {
 		for _, h := range fi.handlers {
 			h.SetEastSpeed(data.EastSpeed)
 		}
-		fi.east = data.EastSpeed
 	}
-	if fi.north != data.NorthSpeed {
+	if fi.d.NorthSpeed != data.NorthSpeed {
 		for _, h := range fi.handlers {
 			h.SetNorthSpeed(data.NorthSpeed)
 		}
-		fi.north = data.NorthSpeed
 	}
-	if fi.vert != data.VerticalSpeed {
+	if fi.d.VerticalSpeed != data.VerticalSpeed {
 		for _, h := range fi.handlers {
 			h.SetVerticalSpeed(data.VerticalSpeed)
 		}
-		fi.vert = data.VerticalSpeed
 	}
 
 	// warnings
-	if fi.temp != data.TemperatureHigh {
+	if fi.d.TemperatureHigh != data.TemperatureHigh {
 		for _, h := range fi.handlers {
 			h.SetWarning("high temperature", data.TemperatureHigh)
 		}
-		fi.temp = data.TemperatureHigh
 	}
-	if fi.imu != data.ImuState {
+	if fi.d.ImuState != data.ImuState {
 		for _, h := range fi.handlers {
 			h.SetWarning("IMU calibration needed", data.ImuState)
 		}
-		fi.imu = data.ImuState
 	}
-	if fi.pressure != data.PressureState {
+	if fi.d.PressureState != data.PressureState {
 		for _, h := range fi.handlers {
 			h.SetWarning("pressure issues", data.PressureState)
 		}
-		fi.pressure = data.PressureState
 	}
-	if fi.video != data.OutageRecording {
+	if fi.d.DownVisualState != data.DownVisualState {
+		for _, h := range fi.handlers {
+			h.SetWarning("down visibility issues", data.DownVisualState)
+		}
+	}
+	if fi.d.OutageRecording != data.OutageRecording {
 		for _, h := range fi.handlers {
 			h.SetWarning("video recording outage", data.OutageRecording)
 		}
-		fi.video = data.OutageRecording
 	}
-	if fi.wind != data.WindState {
+	if fi.d.WindState != data.WindState {
 		for _, h := range fi.handlers {
 			h.SetWarning("strong wind", data.WindState)
 		}
-		fi.wind = data.WindState
 	}
 
-	fi.flying = data.Flying
+	fi.d = *data
 }
 
 func (fi State) Flying() bool {
-	return fi.flying
+	return fi.d.Flying
 }
 
 func (fi State) Exposure() int8 {

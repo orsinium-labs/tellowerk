@@ -4,3 +4,4 @@ tello-*.mpg
 tello-*.mp4
 tello-*.jpg
 /icons/
+/.vscode/
