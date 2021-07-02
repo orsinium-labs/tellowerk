@@ -3,6 +3,7 @@ package plugins
 import (
 	"fmt"
 	"image"
+	"math"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -19,8 +20,13 @@ type UI struct {
 
 	battery    *canvas.Text
 	warns      *canvas.Text
+	speed      *canvas.Text
 	video      *canvas.Image
 	warnsState map[string]bool
+
+	verticalSpeed int16
+	northSpeed    int16
+	eastSpeed     int16
 }
 
 var _ StateHandler = &UI{}
@@ -55,8 +61,9 @@ func (ui *UI) Start() error {
 	// ui.app.Settings().SetTheme(theme.LightTheme())
 	ui.win = ui.app.NewWindow("tellowerk")
 
-	ui.battery = canvas.NewText("battery", theme.ForegroundColor())
+	ui.battery = canvas.NewText("?%", theme.ForegroundColor())
 	ui.warns = canvas.NewText("", theme.ForegroundColor())
+	ui.speed = canvas.NewText("? cm/s", theme.ForegroundColor())
 	ui.video = canvas.NewImageFromImage(
 		image.NewRGBA(image.Rect(0, 0, frameX, frameY)),
 	)
@@ -65,6 +72,7 @@ func (ui *UI) Start() error {
 		container.New(
 			layout.NewGridLayout(1),
 			container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
+			container.NewHBox(ui.icon(icons.SpeedOutlinedIconThemed), ui.speed),
 			container.NewHBox(ui.icon(icons.WarningOutlinedIconThemed), ui.warns),
 		),
 		ui.video,
@@ -86,13 +94,24 @@ func (ui *UI) SetBattery(val int8) {
 }
 
 func (ui *UI) SetNorthSpeed(val int16) {
-
+	ui.northSpeed = val
+	ui.updateSpeed()
 }
 func (ui *UI) SetEastSpeed(val int16) {
-
+	ui.eastSpeed = val
+	ui.updateSpeed()
 }
 func (ui *UI) SetVerticalSpeed(val int16) {
+	ui.verticalSpeed = val
+	ui.updateSpeed()
+}
 
+func (ui *UI) updateSpeed() {
+	s := math.Sqrt(float64(
+		ui.northSpeed*ui.northSpeed +
+			ui.eastSpeed*ui.eastSpeed +
+			ui.verticalSpeed*ui.verticalSpeed))
+	ui.speed.Text = fmt.Sprintf("%d cm/s", int(s))
 }
 
 func (ui *UI) SetWarning(msg string, state bool) {
