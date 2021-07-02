@@ -11,6 +11,7 @@ type StateHandler interface {
 	SetBattery(int8)
 	SetWarning(msg string, state bool)
 	SetHeight(int16)
+	SetFlyTime(int16)
 	SetNorthSpeed(int16)
 	SetEastSpeed(int16)
 	SetVerticalSpeed(int16)
@@ -95,6 +96,11 @@ func (fi *State) update(data *tello.FlightData) {
 	if fi.d.Height != data.Height {
 		for _, h := range fi.handlers {
 			h.SetHeight(data.Height)
+		}
+	}
+	if fi.d.FlyTime != data.FlyTime {
+		for _, h := range fi.handlers {
+			h.SetFlyTime(data.FlyTime)
 		}
 	}
 

@@ -12,13 +12,15 @@ tasks:
       - test -f icons/warning_outlined.go
       - test -f icons/speed_outlined.go
       - test -f icons/height_outlined.go
+      - test -f icons/timer_outlined.go
     cmds:
       - go install github.com/lucor/fynematic
       # https://fonts.google.com/icons
       - fynematic -dir ./icons -package icons -category device -name battery_std
-      - fynematic -dir ./icons -package icons -category alert -name warning
-      - fynematic -dir ./icons -package icons -category av -name speed
+      - fynematic -dir ./icons -package icons -category alert  -name warning
+      - fynematic -dir ./icons -package icons -category av     -name speed
       - fynematic -dir ./icons -package icons -category editor -name height
+      - fynematic -dir ./icons -package icons -category image  -name timer
   build:
     deps:
       - icons

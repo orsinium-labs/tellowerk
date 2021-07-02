@@ -25,7 +25,7 @@ type Config struct {
 func NewConfig() Config {
 	return Config{
 		Port:      8890,
-		GamepadID: 1,
+		GamepadID: 0,
 		Plugins: EnabledPlugins{
 			FFMpeg:   true,
 			State:    true,

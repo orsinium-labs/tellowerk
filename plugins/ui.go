@@ -22,6 +22,7 @@ type UI struct {
 	warns      *canvas.Text
 	speed      *canvas.Text
 	height     *canvas.Text
+	flyTime    *canvas.Text
 	video      *canvas.Image
 	warnsState map[string]bool
 
@@ -65,6 +66,7 @@ func (ui *UI) Start() error {
 	ui.battery = canvas.NewText("? %", theme.ForegroundColor())
 	ui.speed = canvas.NewText("? cm/s", theme.ForegroundColor())
 	ui.height = canvas.NewText("? cm", theme.ForegroundColor())
+	ui.flyTime = canvas.NewText("0 s", theme.ForegroundColor())
 	ui.warns = canvas.NewText("", theme.ForegroundColor())
 	ui.video = canvas.NewImageFromImage(
 		image.NewRGBA(image.Rect(0, 0, frameX, frameY)),
@@ -76,7 +78,9 @@ func (ui *UI) Start() error {
 			container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
 			container.NewHBox(ui.icon(icons.SpeedOutlinedIconThemed), ui.speed),
 			container.NewHBox(ui.icon(icons.HeightOutlinedIconThemed), ui.height),
+			container.NewHBox(ui.icon(icons.TimerOutlinedIconThemed), ui.flyTime),
 			container.NewHBox(ui.icon(icons.WarningOutlinedIconThemed), ui.warns),
+			&layout.Spacer{FixVertical: true},
 		),
 		ui.video,
 	)
@@ -94,6 +98,11 @@ func (ui *UI) SetBattery(val int8) {
 		ui.warnsState["low battery"] = true
 	}
 	ui.battery.Refresh()
+}
+
+func (ui *UI) SetFlyTime(val int16) {
+	ui.flyTime.Text = fmt.Sprintf("%d s", val)
+	ui.flyTime.Refresh()
 }
 
 func (ui *UI) SetHeight(val int16) {

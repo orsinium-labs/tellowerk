@@ -29,6 +29,7 @@ func (log *StateLogger) SetNorthSpeed(val int16)    {}
 func (log *StateLogger) SetEastSpeed(val int16)     {}
 func (log *StateLogger) SetVerticalSpeed(val int16) {}
 func (log *StateLogger) SetHeight(val int16)        {}
+func (log *StateLogger) SetFlyTime(val int16)       {}
 
 func (log *StateLogger) SetWarning(msg string, state bool) {
 	if state {
