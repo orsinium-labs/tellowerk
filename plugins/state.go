@@ -10,7 +10,7 @@ import (
 type StateHandler interface {
 	SetBattery(int8)
 	SetWarning(msg string, state bool)
-
+	SetHeight(int16)
 	SetNorthSpeed(int16)
 	SetEastSpeed(int16)
 	SetVerticalSpeed(int16)
@@ -92,6 +92,11 @@ func (fi *State) update(data *tello.FlightData) {
 			h.SetVerticalSpeed(data.VerticalSpeed)
 		}
 	}
+	if fi.d.Height != data.Height {
+		for _, h := range fi.handlers {
+			h.SetHeight(data.Height)
+		}
+	}
 
 	// warnings
 	if fi.d.TemperatureHigh != data.TemperatureHigh {
@@ -107,6 +112,16 @@ func (fi *State) update(data *tello.FlightData) {
 	if fi.d.PressureState != data.PressureState {
 		for _, h := range fi.handlers {
 			h.SetWarning("pressure issues", data.PressureState)
+		}
+	}
+	if fi.d.PowerState != data.PowerState {
+		for _, h := range fi.handlers {
+			h.SetWarning("power issues", data.PowerState)
+		}
+	}
+	if fi.d.BatteryState != data.BatteryState {
+		for _, h := range fi.handlers {
+			h.SetWarning("battery issues", data.BatteryState)
 		}
 	}
 	if fi.d.DownVisualState != data.DownVisualState {

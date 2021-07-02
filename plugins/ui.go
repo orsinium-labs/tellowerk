@@ -21,6 +21,7 @@ type UI struct {
 	battery    *canvas.Text
 	warns      *canvas.Text
 	speed      *canvas.Text
+	height     *canvas.Text
 	video      *canvas.Image
 	warnsState map[string]bool
 
@@ -61,9 +62,10 @@ func (ui *UI) Start() error {
 	// ui.app.Settings().SetTheme(theme.LightTheme())
 	ui.win = ui.app.NewWindow("tellowerk")
 
-	ui.battery = canvas.NewText("?%", theme.ForegroundColor())
-	ui.warns = canvas.NewText("", theme.ForegroundColor())
+	ui.battery = canvas.NewText("? %", theme.ForegroundColor())
 	ui.speed = canvas.NewText("? cm/s", theme.ForegroundColor())
+	ui.height = canvas.NewText("? cm", theme.ForegroundColor())
+	ui.warns = canvas.NewText("", theme.ForegroundColor())
 	ui.video = canvas.NewImageFromImage(
 		image.NewRGBA(image.Rect(0, 0, frameX, frameY)),
 	)
@@ -73,6 +75,7 @@ func (ui *UI) Start() error {
 			layout.NewGridLayout(1),
 			container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
 			container.NewHBox(ui.icon(icons.SpeedOutlinedIconThemed), ui.speed),
+			container.NewHBox(ui.icon(icons.HeightOutlinedIconThemed), ui.height),
 			container.NewHBox(ui.icon(icons.WarningOutlinedIconThemed), ui.warns),
 		),
 		ui.video,
@@ -86,11 +89,16 @@ func (ui *UI) SetBattery(val int8) {
 	if ui.battery == nil {
 		return
 	}
-	ui.battery.Text = fmt.Sprintf("battery %d%%", val)
+	ui.battery.Text = fmt.Sprintf("%d %%", val)
 	if val <= 20 {
 		ui.warnsState["low battery"] = true
 	}
 	ui.battery.Refresh()
+}
+
+func (ui *UI) SetHeight(val int16) {
+	ui.height.Text = fmt.Sprintf("%d cm", val)
+	ui.height.Refresh()
 }
 
 func (ui *UI) SetNorthSpeed(val int16) {
