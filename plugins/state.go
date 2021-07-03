@@ -15,12 +15,14 @@ type StateHandler interface {
 	SetNorthSpeed(int16)
 	SetEastSpeed(int16)
 	SetVerticalSpeed(int16)
+	SetWiFiStrength(int8)
 }
 
 type State struct {
 	logger *zap.Logger
 	driver *tello.Driver
 	d      tello.FlightData
+	w      tello.WifiData
 
 	exposure int8
 	bitrate  tello.VideoBitRate
@@ -68,7 +70,21 @@ func (fi *State) Start() error {
 	if err != nil {
 		return fmt.Errorf("subscribe to set bitrate: %v", err)
 	}
+	err = fi.driver.On(tello.WifiDataEvent, func(data interface{}) {
+		fi.updateWiFi(data.(*tello.WifiData))
+	})
+	if err != nil {
+		return fmt.Errorf("subscribe to set bitrate: %v", err)
+	}
 	return nil
+}
+
+func (fi *State) updateWiFi(data *tello.WifiData) {
+	if fi.w.Strength != data.Strength {
+		for _, h := range fi.handlers {
+			h.SetWiFiStrength(data.Strength)
+		}
+	}
 }
 
 func (fi *State) update(data *tello.FlightData) {

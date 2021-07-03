@@ -104,7 +104,7 @@ func (g *GamePad) update(oldS, newS gamepad.State) error {
 		}
 	}
 	if oldS.LS().Y != newS.LS().Y {
-		err = g.controller.OY(newS.LS().Y)
+		err = g.controller.OY(-newS.LS().Y)
 		if err != nil {
 			return err
 		}

@@ -22,6 +22,7 @@ type UI struct {
 	warns      *canvas.Text
 	speed      *canvas.Text
 	height     *canvas.Text
+	wifi       *canvas.Text
 	flyTime    *canvas.Text
 	video      *canvas.Image
 	warnsState map[string]bool
@@ -66,6 +67,7 @@ func (ui *UI) Start() error {
 	ui.battery = canvas.NewText("? %", theme.ForegroundColor())
 	ui.speed = canvas.NewText("? cm/s", theme.ForegroundColor())
 	ui.height = canvas.NewText("? cm", theme.ForegroundColor())
+	ui.wifi = canvas.NewText("?%", theme.ForegroundColor())
 	ui.flyTime = canvas.NewText("0 s", theme.ForegroundColor())
 	ui.warns = canvas.NewText("", theme.ForegroundColor())
 	ui.video = canvas.NewImageFromImage(
@@ -78,6 +80,7 @@ func (ui *UI) Start() error {
 			container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
 			container.NewHBox(ui.icon(icons.SpeedOutlinedIconThemed), ui.speed),
 			container.NewHBox(ui.icon(icons.HeightOutlinedIconThemed), ui.height),
+			container.NewHBox(ui.icon(icons.WifiOutlinedIconThemed), ui.wifi),
 			container.NewHBox(ui.icon(icons.TimerOutlinedIconThemed), ui.flyTime),
 			container.NewHBox(ui.icon(icons.WarningOutlinedIconThemed), ui.warns),
 			&layout.Spacer{FixVertical: true},
@@ -101,13 +104,18 @@ func (ui *UI) SetBattery(val int8) {
 }
 
 func (ui *UI) SetFlyTime(val int16) {
-	ui.flyTime.Text = fmt.Sprintf("%d s", val)
+	ui.flyTime.Text = fmt.Sprintf("%d s", val/10)
 	ui.flyTime.Refresh()
 }
 
 func (ui *UI) SetHeight(val int16) {
-	ui.height.Text = fmt.Sprintf("%d cm", val)
+	ui.height.Text = fmt.Sprintf("%d cm", val*10)
 	ui.height.Refresh()
+}
+
+func (ui *UI) SetWiFiStrength(val int8) {
+	ui.wifi.Text = fmt.Sprintf("%d%%", val)
+	ui.wifi.Refresh()
 }
 
 func (ui *UI) SetNorthSpeed(val int16) {
@@ -124,11 +132,12 @@ func (ui *UI) SetVerticalSpeed(val int16) {
 }
 
 func (ui *UI) updateSpeed() {
+	// TODO: check me
 	s := math.Sqrt(float64(
-		ui.northSpeed*ui.northSpeed +
-			ui.eastSpeed*ui.eastSpeed +
-			ui.verticalSpeed*ui.verticalSpeed))
-	ui.speed.Text = fmt.Sprintf("%d cm/s", int(s))
+		uint32(ui.northSpeed)*uint32(ui.northSpeed) +
+			uint32(ui.eastSpeed)*uint32(ui.eastSpeed) +
+			uint32(ui.verticalSpeed)*uint32(ui.verticalSpeed)))
+	ui.speed.Text = fmt.Sprintf("%d cm/s (E%d N%d V%d)", int(s), ui.eastSpeed, ui.northSpeed, ui.verticalSpeed)
 }
 
 func (ui *UI) SetWarning(msg string, state bool) {

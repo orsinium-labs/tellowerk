@@ -13,6 +13,7 @@ tasks:
       - test -f icons/speed_outlined.go
       - test -f icons/height_outlined.go
       - test -f icons/timer_outlined.go
+      - test -f icons/wifi_outlined.go
     cmds:
       - go install github.com/lucor/fynematic
       # https://fonts.google.com/icons
@@ -20,7 +21,7 @@ tasks:
       - fynematic -dir ./icons -package icons -category alert  -name warning
       - fynematic -dir ./icons -package icons -category av     -name speed
       - fynematic -dir ./icons -package icons -category editor -name height
-      - fynematic -dir ./icons -package icons -category image  -name timer
+      - fynematic -dir ./icons -package icons -category notification -name wifi
   build:
     deps:
       - icons
