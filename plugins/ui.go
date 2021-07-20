@@ -14,12 +14,14 @@ import (
 	"github.com/orsinium-labs/tellowerk/icons"
 )
 
+const WarnsCount = 6
+
 type UI struct {
 	app fyne.App
 	win fyne.Window
 
 	battery    *canvas.Text
-	warns      *canvas.Text
+	warns      [WarnsCount]*canvas.Text
 	speed      *canvas.Text
 	height     *canvas.Text
 	wifi       *canvas.Text
@@ -67,26 +69,32 @@ func (ui *UI) Start() error {
 	ui.battery = canvas.NewText("? %", theme.ForegroundColor())
 	ui.speed = canvas.NewText("? cm/s", theme.ForegroundColor())
 	ui.height = canvas.NewText("? cm", theme.ForegroundColor())
-	ui.wifi = canvas.NewText("?%", theme.ForegroundColor())
+	ui.wifi = canvas.NewText("? %", theme.ForegroundColor())
 	ui.flyTime = canvas.NewText("0 s", theme.ForegroundColor())
-	ui.warns = canvas.NewText("", theme.ForegroundColor())
+
 	ui.video = canvas.NewImageFromImage(
 		image.NewRGBA(image.Rect(0, 0, frameX, frameY)),
 	)
 	ui.video.SetMinSize(fyne.NewSize(frameX, frameY))
-	content := container.NewHBox(
-		container.New(
-			layout.NewGridLayout(1),
-			container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
-			container.NewHBox(ui.icon(icons.SpeedOutlinedIconThemed), ui.speed),
-			container.NewHBox(ui.icon(icons.HeightOutlinedIconThemed), ui.height),
-			container.NewHBox(ui.icon(icons.WifiOutlinedIconThemed), ui.wifi),
-			container.NewHBox(ui.icon(icons.TimerOutlinedIconThemed), ui.flyTime),
-			container.NewHBox(ui.icon(icons.WarningOutlinedIconThemed), ui.warns),
-			&layout.Spacer{FixVertical: true},
-		),
-		ui.video,
+
+	dashboard := container.New(
+		layout.NewGridLayout(1),
+		container.NewHBox(ui.icon(icons.BatteryStdOutlinedIconThemed), ui.battery),
+		container.NewHBox(ui.icon(icons.SpeedOutlinedIconThemed), ui.speed),
+		container.NewHBox(ui.icon(icons.HeightOutlinedIconThemed), ui.height),
+		container.NewHBox(ui.icon(icons.WifiOutlinedIconThemed), ui.wifi),
+		container.NewHBox(ui.icon(icons.TimerOutlinedIconThemed), ui.flyTime),
+		&layout.Spacer{FixVertical: true},
 	)
+	for i := 0; i < WarnsCount; i++ {
+		ui.warns[i] = canvas.NewText("", theme.ForegroundColor())
+		icon := ui.icon(icons.WarningOutlinedIconThemed)
+		if i != 0 {
+			icon.Hide()
+		}
+		dashboard.Add(container.NewHBox(icon, ui.warns[i]))
+	}
+	content := container.NewHBox(dashboard, ui.video)
 	ui.win.SetContent(content)
 	ui.win.Show()
 	return nil
@@ -114,7 +122,7 @@ func (ui *UI) SetHeight(val int16) {
 }
 
 func (ui *UI) SetWiFiStrength(val int8) {
-	ui.wifi.Text = fmt.Sprintf("%d%%", val)
+	ui.wifi.Text = fmt.Sprintf("%d %%", val)
 	ui.wifi.Refresh()
 }
 
@@ -143,14 +151,18 @@ func (ui *UI) updateSpeed() {
 func (ui *UI) SetWarning(msg string, state bool) {
 	ui.warnsState[msg] = state
 
-	text := ""
+	i := 0
 	for msg, state := range ui.warnsState {
 		if state {
-			text += msg + "\n"
+			ui.warns[i].Text = msg
+			ui.warns[i].Refresh()
 		}
 	}
-	ui.warns.Text = text
-	ui.warns.Refresh()
+	for i < WarnsCount {
+		ui.warns[i].Text = ""
+		ui.warns[i].Refresh()
+		i++
+	}
 }
 
 func (ui *UI) SetFrame(img *RGB) {
